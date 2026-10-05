@@ -33,9 +33,35 @@ GR[14]="Reclamación, verificación y entrega";
 const RNF=[["RNF-01","La aplicación deberá funcionar en las plataformas definidas para el proyecto, utilizando Flutter."],["RNF-02","La interfaz deberá ser clara, consistente e intuitiva para el personal autorizado."],["RNF-03","El sistema deberá aplicar autenticación y autorización según el rol del usuario."],["RNF-04","El sistema deberá impedir duplicidades e inconsistencias en registros y estados."],["RNF-05","La solución deberá permitir crecimiento de usuarios, registros y futuras funcionalidades."],["RNF-06","El código deberá mantenerse modular, organizado y documentado."],["RNF-07","La interfaz deberá adaptarse a los tamaños de pantalla de las plataformas objetivo."],["RNF-08","Los errores no deberán generar registros incompletos ni pérdida de información."]];
 const ROLES=[["po","Product Owner","Prioriza el Product Backlog y valida el valor de cada entrega."],["sm","Scrum Master","Facilita ceremonias, remueve impedimentos y vela por Scrum adaptativo."],["fe","Developer 1 · Front End","Interfaz multiplataforma en Flutter, responsive y consistente."],["be","Developer 2 · Back End","Lógica, base de datos, seguridad, estados y auditoría."],["qa","Stakeholder · QA","Valida criterios de aceptación, pruebas y retroalimentación."]];
 const ACT=[["Diagnóstico del proceso actual en Makro Chincha","po",1,2],["Formación del equipo y roles Scrum · Product Backlog","sm",1,2],["Selección y justificación del enfoque ágil (Scrum adaptativo)","sm",2,3],["Sprint 1 · Acceso, usuarios, roles (RF-01 a RF-05)","be",3,5],["Sprint 1 · Diseño UI y navegación Flutter (RNF-01, 02, 07)","fe",3,5],["Sprint 2 · Registro, foto, código y consulta (RF-06 a RF-14)","be",6,8],["Sprint 2 · Pantallas de objetos, búsqueda y filtros","fe",6,8],["Sprint 3 · Reclamación, verificación y entrega (RF-15 a RF-22)","be",9,11],["Sprint 3 · Pantallas de reclamo y constancia de entrega","fe",9,11],["Sprint 4 · Dashboard, reportes, categorías, lugares, auditoría (RF-23 a RF-30)","be",12,14],["Sprint 4 · Interfaces de reportes y administración","fe",12,14],["Pruebas QA y validación de criterios de aceptación","qa",5,14],["Validación de valor y reajuste de backlog con Makro","po",5,14],["Informe final, consolidación de evidencias y revisión de entrega","sm",14,14],["ENTREGA FINAL del producto (lunes 30 nov 2026)","po",15,15]];
+const TEAM={
+po:{p:"María",q:["Visión de negocio","Comunicación con Makro","Toma de decisiones","Criterio de valor"],
+t:["Mantener el Product Backlog ordenado por valor","Definir criterios de aceptación de cada RF","Validar con Makro Chincha en cada Sprint Review","Aceptar o rechazar lo terminado en cada sprint","Reajustar el backlog con la retroalimentación","Aprobar la entrega final del 30 nov"],
+m:["Historias de usuario en formato «Como… quiero… para…»","Matriz valor/esfuerzo para ordenar los RF","Reunión semanal de 15 min con el encargado de Makro","Registro de decisiones tomadas (qué, por qué, quién)"],
+h:"Tu fuerte es el negocio: usa los datos de Makro para decidir y delega el «cómo» al equipo técnico. No ocupes tiempo programando.",
+pr:["Decidir lo que bloquea a Front/Back (dudas de alcance)","Flujo núcleo de entrega de objetos","Seguridad y roles","Reportes y administración al final"]},
+sm:{p:"Piero",q:["Organización","Liderazgo servicial","Resolución de conflictos","Disciplina"],
+t:["Convocar Planning, Daily, Review y Retro","Remover impedimentos en menos de 24 h","Mantener el Gantt y los ✓ al día","Consolidar evidencias en la carpeta de Drive","Cuidar que el sprint no exceda la capacidad del equipo","Elaborar el informe final"],
+m:["Daily de 15 min con 3 preguntas: ayer, hoy, bloqueos","Lista de impedimentos con responsable y fecha","Burndown semanal simple (pendiente vs. hecho)","Una mejora accionable por Retro, con dueño"],
+h:"Tu fuerza es ordenar y facilitar: protege el foco del equipo, no impongas; mide el avance con hechos (✓ del Gantt).",
+pr:["Impedimentos que frenan a otros","Ceremonias de la semana","Evidencias del día (capturas)","Informe final al cierre"]},
+fe:{p:"Airton",q:["Sensibilidad visual","UX / usabilidad","Flutter","Diseño responsive"],
+t:["Bocetar pantallas antes de codificar","Navegación y tema base en Flutter","Pantallas de login, objetos, búsqueda y filtros","Pantallas de reclamo y constancia de entrega","Interfaces de dashboard y reportes","Validaciones, estados de carga y mensajes de error"],
+m:["Biblioteca de widgets reutilizables (botón, campo, tarjeta)","Probar cada pantalla en 3 tamaños (móvil, tablet, web)","Acordar con Back End el JSON de cada endpoint","Datos simulados (mock) para no esperar al Back End"],
+h:"Tu fuerte es la experiencia: reutiliza componentes para ir rápido y reserva el pulido para el final; coordina el contrato de datos con Dayron.",
+pr:["Pantallas de lo que Back End ya entregó","Flujo núcleo (registro, reclamo, entrega)","Responsive y errores claros (RNF-02, 07, 08)","Pulido visual al final del sprint"]},
+be:{p:"Dayron",q:["Lógica y reglas","Rigor técnico","Seguridad","Base de datos"],
+t:["Modelo de datos y migraciones","Autenticación, roles y permisos (RF-01 a 05)","Endpoints de objetos, estados e historial","Reglas de reclamo, verificación y entrega","Auditoría y reportes","Pruebas de las reglas críticas"],
+m:["Documentar cada endpoint con un ejemplo","Validar siempre en servidor, no solo en pantalla","Transacciones en la entrega (si falla, no cambia el estado)","Revisión cruzada de código con Front End"],
+h:"Tu fuerte es la solidez: entrega primero los endpoints que desbloquean a Airton y deja la optimización para cuando todo funcione.",
+pr:["Seguridad e integridad (RNF-03 y 04)","Endpoints que desbloquean a Front End","Reglas de estados y entrega","Reportes y optimización al final"]},
+qa:{p:"Patricia",q:["Ojo crítico","Atención al detalle","Empatía con el usuario","Comunicación clara"],
+t:["Convertir criterios de aceptación en casos de prueba","Probar cada RF al cerrar el sprint y marcar ✓/✗","Reportar defectos: pasos, esperado, obtenido, captura","Pruebas de regresión antes de cada Review","Validar usabilidad con personal de Makro","Firmar la aceptación de cada sprint"],
+m:["Plantilla única de reporte de defectos","Defectos por severidad: crítico, alto, medio, bajo","Checklist de regresión reutilizable","Probar con ambos roles (Administrador y Atención al Cliente)"],
+h:"Tu fuerte es la mirada del usuario: prueba temprano y en pequeño (por RF), no solo al final; reporta de forma que el dev reproduzca sin preguntar.",
+pr:["Defectos críticos (seguridad, entrega errónea)","Flujo núcleo de entrega","Casos de borde y validaciones","Detalles visuales al final"]}};
 const $=i=>document.getElementById(i);
-const DAY=864e5,START=Date.UTC(2026,7,24),DEAD=Date.UTC(2026,10,30,5);
-const LIMA_TZ="America/Lima",limaNow=()=>new Date();
+const DAY=864e5,START=Date.UTC(2026,7,24),DEAD=Date.UTC(2026,10,30,5),LIMA_TZ="America/Lima";
+const limaNow=()=>new Date();
 const o={day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false,timeZone:LIMA_TZ};
 const fmt=d=>d.toLocaleString("es-PE",o),fmtS=fmt;
 const sd=d=>new Date(d).toLocaleDateString("es-PE",{day:"2-digit",month:"short",timeZone:"UTC"});
@@ -48,12 +74,14 @@ const ph=w=>(spW(w)||["—"])[0];
 const CC=[["m","Reunión Zoom/Meet"],["d","Daily / seguimiento"],["e","Captura en Drive"],["r","Review + Retro"]];
 const ATR=["Portabilidad","Usabilidad","Seguridad","Integridad","Escalabilidad","Mantenibilidad","Adaptabilidad","Fiabilidad"];
 const spIdx=i=>i<5?0:i<14?1:i<22?2:3,dueRF=i=>[5,8,11,14][spIdx(i)],dueRNF=i=>[0,1,6].includes(i)?5:14;
-let st={},att={},names={},db=null,user=null,me={id:null,name:""},mode="cargando",sel=today(),cm=Number(today().slice(5,7))-1,cy=Number(today().slice(0,4)),onlyP=false,prompted=false,attReady=false;
+let st={},att={},db=null,auth=null,activeMember=null,unsubscribers=[],mode="cargando",sel=today(),cm=Number(today().slice(5,7))-1,cy=Number(today().slice(0,4)),onlyP=false,prompted=false,attReady=false,onlyMe=false;
 const ENTRY=new Date(),L=k=>{try{return JSON.parse(localStorage.getItem(k))||{}}catch(e){console.error(`No se pudo leer ${k} del almacenamiento local.`,e);return {}}},SV=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){console.error(`No se pudo guardar ${k} en el almacenamiento local.`,e);return false}};
-const nm=id=>id===me.id?(me.name||"Tú"):(names[id]||""),by=x=>x&&x.by?" · "+x.by:"";
-const ok=k=>st[k]&&st[k].v==1,WHO=[["Piero","Scrum Master"],["María","Product Owner"],["Airton","Developer 1 · Front End"],["Dayron","Developer 2 · Back End"],["Patricia","Stakeholder · QA"]],wid=()=>{const i=WHO.findIndex(x=>x[0]==who);return i<0?null:today()+"_u"+i},myAtt=()=>wid()?att[wid()]:null;let who="";try{who=localStorage.getItem("mkwho")||""}catch(e){}
-const sg=k=>{const x=st[k],v=x?x.v:-1;return `<span class="sg"><button class="y ${v==1?"on":""}" data-k="${k}" data-v="1" ${v==1?"disabled":""} title="Cumplido (permanente)">✓</button><button class="x ${v==0?"on":""}" data-k="${k}" data-v="0" ${v>=0?"disabled":""} title="No cumplido">✗</button></span>`};
-const tsl=k=>{const x=st[k];return x?(x.v?"✓ ":"✗ ")+x.t+by(x):"Pendiente"};
+const by=x=>x&&x.by?" · "+x.by:"";
+const ok=k=>st[k]&&st[k].v==1,WHO=[["Piero","Scrum Master"],["María","Product Owner"],["Airton","Developer 1 · Front End"],["Dayron","Developer 2 · Back End"],["Patricia","Stakeholder · QA"]],wid=()=>{const i=WHO.findIndex(x=>x[0]==who);return i<0?null:today()+"_u"+i},myAtt=()=>wid()?att[wid()]:null;let who="";try{who=localStorage.getItem("mkwho")||""}catch(e){console.error("No se pudo leer el perfil local.",e)}
+const sg=k=>{const x=st[k],v=x?x.v:-1;return `<span class="sg"><button class="y ${v==1?"on":""}" data-k="${k}" data-v="1" title="${v==1?"Clic para quitar":"Cumplido"}">✓</button><button class="x ${v==0?"on":""}" data-k="${k}" data-v="0" title="${v==0?"Clic para quitar":"No cumplido"}">✗</button></span>`};
+const eventDate=x=>{const timestamp=x&&(x.createdAt||x.updatedAt);if(timestamp&&typeof timestamp.toDate==="function")return timestamp.toDate();if(x&&x.at){const date=new Date(x.at);if(!Number.isNaN(date.getTime()))return date}return null};
+const recordTime=x=>{const date=eventDate(x);return date?fmtS(date):x&&x.t?x.t:"Pendiente"};
+const tsl=k=>{const x=st[k];return x?(x.v?"✓ ":"✗ ")+recordTime(x)+by(x):"Pendiente"};
 const row=(k,id,n,v,sp)=>{const x=st[k];return `<tr class="${x?(x.v?"ok":"no"):""}"><td><b>${id}</b></td><td>${n}</td><td class="v">${v}</td><td>${sp}</td><td>${sg(k)}</td><td class="ts">${tsl(k)}</td></tr>`};
 function rfHtml(){const q=$("q").value.toLowerCase();let h="<tr><th>Código</th><th>Requerimiento</th><th>Validación</th><th>Sprint</th><th>Estado</th><th>Fecha y hora</th></tr>";
 RF.forEach((r,i)=>{if(GR[i]!==undefined&&!q&&!onlyP)h+=`<tr class="gh"><td colspan="6">${GR[i]}</td></tr>`;
@@ -64,7 +92,7 @@ function ganttHtml(){const cw=curW();let h="<tr><th>Cumple</th><th class='l'>Act
 for(let w=1;w<=15;w++)h+=`<th class="${w==cw?"cur":""}">S${w}<br><small>${sd(wd(w))}</small></th>`;h+="<th>Estado</th></tr>";
 ACT.forEach((a,i)=>{const k="g"+i,x=st[k];let e="Por iniciar",cl="";
 if(x&&x.v==1){e="Cumplida";cl="ok"}else if(x&&x.v==0){e="No cumplida";cl="no"}else if(a[3]<cw){e="Atrasada";cl="no"}else if(a[2]<=cw){e="En curso";cl="wip"}
-h+=`<tr><td>${sg(k)}</td><td class="n">${a[0]}<small class="ts">${tsl(k)}</small></td>`;
+h+=`<tr><td>${sg(k)}</td><td class="n">${a[0]}<small class="ow">👤 ${TEAM[a[1]].p} · ${ROLES.find(r=>r[0]==a[1])[1]}</small><small class="ts">${tsl(k)}</small></td>`;
 for(let w=1;w<=15;w++){const on=w>=a[2]&&w<=a[3];h+=`<td class="${w==cw?"cur":""}"><div class="cell ${on?"on":""}" style="${on?`background:var(--${a[1]});opacity:${w<=cw?1:.4}`:""}"></div></td>`}
 h+=`<td><span class="chip ${cl}">${e}</span></td></tr>`});$("gt").innerHTML=h}
 function rolesHtml(){const cw=curW();$("roles").innerHTML=ROLES.map(r=>{const A=ACT.map((a,i)=>[a,i]).filter(x=>x[0][1]==r[0]);const due=A.filter(x=>x[0][3]<cw).length,done=A.filter(x=>ok("g"+x[1])).length;
@@ -75,9 +103,9 @@ h+=`<tr class="${cw>=15?"cur":""}"><td><b>Semana 15</b><small class="ts">Lun 30 
 function stats(){const cnt=ks=>[ks.filter(ok).length,ks.filter(k=>st[k]&&st[k].v==0).length,ks.length];
 const card=(t,[a,b,n])=>`<div class="st"><small>${t}</small><b>${a}/${n}</b> <small style="display:inline">(${Math.round(a/n*100)}% · ✗ ${b})</small><div class="bar"><i style="width:${a/n*100}%"></i></div></div>`;
 const cer=[];for(let w=1;w<=14;w++)CC.forEach(c=>cer.push("c"+w+c[0]));
-$("stats").innerHTML=card("Funcionales",cnt(RF.map(r=>r.id)))+card("No funcionales",cnt(RNF.map(r=>r[0])))+card("Actividades Gantt",cnt(ACT.map((a,i)=>"g"+i)))+card("Ceremonias y evidencias",cnt(cer))}
-function banner(){const cw=curW(),m=myAtt(),s=spW(Math.min(cw,15));
-$("wkb").innerHTML=`<div><small>Hora exacta (Lima)</small><b id="ck"></b></div><div><small>Ingresaste a esta página</small><b>${fmtS(ENTRY)}</b></div><div><small>Semana del proyecto</small><b>${cw==0?"Inicia el 24 ago":cw>15?"Plazo concluido":`${cw} de 15`+(cw<=15?` · ${sd(wd(cw))} – ${sd(wd(cw)+6*DAY)}`:"")}</b></div><div><small>Entrega final · lunes 30 nov 2026</small><b id="cd"></b></div><div><small>Mi asistencia de hoy</small>${m?`<b class="good">✓ ${m.p} · ${m.t}</b><small>${m.r} · <a href="#" id="chg">cambiar persona/rol</a></small>`:`<button class="pri" id="atb">☑ Marcar asistencia${who?` · ${who}`:""}</button>`}</div><div><small>Datos</small><b>${mode=="compartido"?"🟢 Compartidos con el equipo":mode=="local"?"🟠 Solo en este navegador":mode=="error"?"🔴 Error de sincronización":"⏳ Cargando…"}</b></div>`;tick()}
+$("stats").innerHTML=card("Funcionales",cnt(RF.map(r=>r.id)))+card("No funcionales",cnt(RNF.map(r=>r[0])))+card("Actividades Gantt",cnt(ACT.map((a,i)=>"g"+i)))+card("Ceremonias y evidencias",cnt(cer))+card("Tareas y mejoras por rol",cnt(Object.keys(TEAM).flatMap(r=>["t","m"].flatMap(p=>TEAM[r][p].map((_,i)=>p+"_"+r+"_"+i)))))}
+function banner(){const cw=curW(),m=myAtt();
+$("wkb").innerHTML=`<div><small>Hora exacta (Lima)</small><b id="ck"></b></div><div><small>Ingresaste a esta página</small><b>${fmtS(ENTRY)}</b></div><div><small>Semana del proyecto</small><b>${cw==0?"Inicia el 24 ago":cw>15?"Plazo concluido":`${cw} de 15`+(cw<=15?` · ${sd(wd(cw))} – ${sd(wd(cw)+6*DAY)}`:"")}</b></div><div><small>Entrega final · lunes 30 nov 2026</small><b id="cd"></b></div><div><small>Mi asistencia de hoy</small>${m?`<b class="good">✓ ${m.p} · ${m.t}</b><small>${m.r}</small>`:`<button class="pri" id="atb">☑ Marcar asistencia${who?` · ${who}`:""}</button>`}<small><a href="#" id="chg">${auth?"Cerrar sesión / cambiar integrante":who?"Cambiar persona":"Seleccionar persona"}</a></small></div><div><small>Datos</small><b>${mode=="compartido"?"🟢 En tiempo real":mode=="local"?"🟠 Solo en este navegador":mode=="error"?"🔴 Error de conexión":mode=="sin-sesion"?"🔐 Inicia sesión":"⏳ Conectando…"}</b></div>`;tick()}
 function tick(){const a=$("ck"),c=$("cd");if(a)a.textContent=fmtS(new Date());if(!c)return;const d=DEAD-limaNow().getTime();
 if(d>0){const D=Math.floor(d/DAY),H=Math.floor(d%DAY/36e5),M=Math.floor(d%36e5/6e4),S=Math.floor(d%6e4/1e3);c.textContent=`${D}d ${H}h ${M}m ${S}s`}else c.textContent=d>-DAY?"¡HOY es la entrega!":"Plazo concluido"}
 function panel(){const cw=curW(),c=Math.min(cw,15),s=spW(c);let sc="";
@@ -104,33 +132,80 @@ for(let r=0;r<rows;r++){const mon=first+(r*7-off)*DAY,w=weekOf(mon+12*36e5);h+=`
 for(let c=0;c<7;c++){const t=mon+c*DAY,d=new Date(t),k=d.toISOString().slice(0,10),n=(B[k]||[]).length;
 h+=`<div class="cd ${d.getUTCMonth()==cm?"":"oth"} ${k==td?"tdy":""} ${k=="2026-11-30"?"dl":""} ${k==sel?"sel":""}" data-d="${k}">${d.getUTCDate()}${k=="2026-11-30"?"🏁":""}${n?`<i>✓${n}</i>`:""}</div>`}}
 $("cgr").innerHTML=h;
-const t=Date.parse(`${sel}T12:00:00Z`),w=weekOf(t),s=spW(w),L2=(B[sel]||[]).slice().sort((a,b)=>{const aTime=Date.parse(a.at),bTime=Date.parse(b.at);return (Number.isNaN(aTime)?0:aTime)-(Number.isNaN(bTime)?0:bTime)});
-$("cdt").innerHTML=`<b>${new Date(t).toLocaleDateString("es-PE",{weekday:"long",day:"numeric",month:"long",year:"numeric",timeZone:"UTC"})}</b><br>${w>=1&&w<=15?`Semana ${w} · ${s[0]}`:"Fuera del cronograma"}${sel=="2026-11-30"?" · 🏁 ENTREGA FINAL":""}<p><b>Asistencia del día (${L2.length}):</b></p>${L2.length?"<ul class=\"attendance-list\">"+L2.map(a=>`<li><b>${a.p}</b> · ${a.r} · ${a.d} · <time datetime="${a.at||""}">${a.at?fmtS(new Date(a.at)):a.t}</time></li>`).join("")+"</ul>":"<p>Nadie registró asistencia.</p>"}${sel==td&&!myAtt()?'<button class="pri" id="mak">☑ Marcar mi asistencia de hoy</button>':""}`}
-function render(){rfHtml();rnfHtml();ganttHtml();rolesHtml();cerHtml();stats();banner();panel();if(!$("mdc").hidden)calHtml()}
-async function getNames(){if(!user||!user.profiles)return;const ids=[...new Set([...Object.values(st).map(x=>x.by),...Object.values(att).map(x=>x.uid)])].filter(i=>i&&i!==me.id&&!(i in names));if(!ids.length)return;
-ids.forEach(i=>names[i]="");try{const p=await user.profiles(ids);ids.forEach(i=>names[i]=(p[i]&&p[i].name)||"");render()}catch(e){console.error("No se pudieron cargar los nombres de los usuarios.",e)}}
-function maybePrompt(){if(prompted||!attReady)return;prompted=true;if(!who)openAtt()}
-function openAtt(){$("mwho").innerHTML=WHO.map(w=>`<button class="pw" data-w="${w[0]}"><b>${w[0]}</b><small>${w[1]}</small></button>`).join("");$("mda").hidden=false}
-async function saveMark(k,v){if(!who){openAtt();return}const x={v,t:fmt(new Date()),by:who};st[k]=x;if(db){try{await db.doc("marks/"+k).set(x)}catch(e){delete st[k];alert("No se pudo guardar. Pide acceso de Colaborador al dueño de la página.")}}else SV("mk3m",st);render()}
-async function saveAtt(n){const i=WHO.findIndex(x=>x[0]==n);if(i<0)return;who=n;try{localStorage.setItem("mkwho",n)}catch(e){}$("mda").hidden=true;const d=today(),id=d+"_u"+i;
-if(!att[id]){const now=new Date(),x={d,p:n,r:WHO[i][1],at:now.toISOString(),t:fmt(now)};att[id]=x;if(db){try{await db.doc("asist/"+id).set(x)}catch(e){delete att[id];console.error("No se pudo guardar la asistencia compartida.",e);alert("No se pudo registrar la asistencia compartida. Verifica el acceso al servicio y vuelve a intentarlo.")}}else if(!SV("mk3a",att)){delete att[id];alert("No se pudo guardar la asistencia en este navegador. Comprueba el espacio disponible y vuelve a intentarlo.")}}render()}
+const t=Date.parse(`${sel}T12:00:00Z`),w=weekOf(t),s=spW(w),L2=(B[sel]||[]).slice().sort((a,b)=>(eventDate(a)?.getTime()||0)-(eventDate(b)?.getTime()||0));
+$("cdt").innerHTML=`<b>${new Date(t).toLocaleDateString("es-PE",{weekday:"long",day:"numeric",month:"long",year:"numeric",timeZone:"UTC"})}</b><br>${w>=1&&w<=15?`Semana ${w} · ${s[0]}`:"Fuera del cronograma"}${sel=="2026-11-30"?" · 🏁 ENTREGA FINAL":""}<p><b>Asistencia del día (${L2.length}):</b></p>${L2.length?"<ul class=\"attendance-list\">"+L2.map(a=>`<li><b>${a.p}</b> · ${a.r} · ${a.d} · <time datetime="${eventDate(a)?.toISOString()||""}">${recordTime(a)}</time></li>`).join("")+"</ul>":"<p>Nadie registró asistencia.</p>"}${sel==td&&!myAtt()?'<button class="pri" id="mak">☑ Marcar mi asistencia de hoy</button>':""}`}
+function render(){rfHtml();rnfHtml();ganttHtml();rolesHtml();cerHtml();teamHtml();stats();banner();panel();if(!$("mdc").hidden)calHtml()}
+function setAuthStatus(message,isError=false){const status=$("authStatus");status.textContent=message;status.classList.toggle("bad",isError);status.classList.toggle("good",!isError&&Boolean(message))}
+function maybePrompt(){if(prompted)return;prompted=true;if(mode==="local"&&!who)openAtt();else if(mode==="sin-sesion"||mode==="error")openAtt()}
+function openAtt(){const local=mode==="local";$("authTitle").textContent=local?"👋 Selecciona tu rol":"🔐 Acceso del equipo";
+$("authHelp").textContent=local?"Modo local: los cambios se guardan solamente en este navegador.":"Inicia sesión con la cuenta asignada por el administrador del equipo.";
+$("loginForm").hidden=local;$("logoutButton").hidden=local||!auth?.currentUser;$("mwho").innerHTML=local?WHO.map(w=>`<button class="pw" data-w="${w[0]}"><b>${w[0]}</b><small>${w[1]}</small></button>`).join(""):"";
+if(local)setAuthStatus("Sincronización en tiempo real no configurada. No compartas datos personales en este modo.",true);
+$("mda").hidden=false}
+async function saveMark(k,v){if(!who){openAtt();return}const previous=st[k],x={v,t:fmt(new Date()),by:who};
+if(activeMember){x.uid=activeMember.uid;x.role=activeMember.role;x.updatedAt=firebase.firestore.FieldValue.serverTimestamp()}
+st[k]=x;render();
+try{if(db){await db.collection("marks").doc(k).set(x)}else if(!SV("mk3m",st)){throw new Error("El almacenamiento local no pudo guardar el cambio.")}}
+catch(e){if(previous)st[k]=previous;else delete st[k];console.error("No se pudo guardar el check.",e);setAuthStatus("No se guardó el check. Comprueba la conexión y los permisos.",true);render()}}
+async function removeMark(k){if(!who)return openAtt();const previous=st[k];delete st[k];render();
+try{if(db)await db.collection("marks").doc(k).delete();else if(!SV("mk3m",st))throw new Error("El almacenamiento local no pudo guardar el cambio.")}
+catch(e){st[k]=previous;console.error("No se pudo quitar el check.",e);setAuthStatus("No se pudo quitar el check. Comprueba la conexión y los permisos.",true);render()}}
+function teamHtml(){const rid=(WHO.find(w=>w[0]==who)||[])[1],mine=ROLES.find(r=>r[1]==rid);
+const list=(r,pre,arr)=>arr.map((t,i)=>{const k=pre+"_"+r+"_"+i,x=st[k];return `<label class="tk ${x&&x.v?"d":""}"><input type="checkbox" data-tk="${k}" ${x&&x.v?"checked":""}><span>${t}<small>${x?"✓ "+x.t+by(x):""}</small></span></label>`}).join("");
+$("tm").innerHTML=ROLES.filter(r=>!onlyMe||!mine||r[0]==mine[0]).map(r=>{const T=TEAM[r[0]],n=T.t.length+T.m.length,d=T.t.filter((_,i)=>ok("t_"+r[0]+"_"+i)).length+T.m.filter((_,i)=>ok("m_"+r[0]+"_"+i)).length;
+const A=ACT.map((a,i)=>[a,i]).filter(x=>x[0][1]==r[0]);
+return `<div class="tc ${mine&&mine[0]==r[0]?"me":""}" style="border-top-color:var(--${r[0]})"><h3>${T.p} · ${r[1]}</h3><div class="who">${r[2]}</div><div class="bar"><i style="width:${d/n*100}%"></i></div><small class="ts">${d}/${n} tareas y mejoras cumplidas</small>
+<h4>Cualidades que aporta</h4><div class="qs">${T.q.map(q=>`<span>${q}</span>`).join("")}</div>
+<h4>Tareas que asume</h4>${list(r[0],"t",T.t)}
+<h4>Mejoras implementadas</h4>${list(r[0],"m",T.m)}<p><span class="pg">Cómo usar tu habilidad:</span> ${T.h}</p>
+<h4>Cómo priorizar tu trabajo</h4><ol>${T.pr.map(x=>`<li>${x}</li>`).join("")}</ol>
+<h4>Actividades del Gantt a su cargo</h4>${A.map(x=>`<div class="tk ${ok("g"+x[1])?"d":""}"><span>${x[0][0]}<small>Sem ${x[0][2]}–${x[0][3]} · ${ok("g"+x[1])?"✓ cumplida":"pendiente"}</small></span></div>`).join("")}</div>`}).join("")}
+async function saveAtt(n=who){const i=WHO.findIndex(x=>x[0]===n);if(i<0)return;who=n;$("mda").hidden=true;
+if(!wid()||!att[wid()]){const now=new Date(),id=today()+"_u"+i,x={d:today(),p:n,r:WHO[i][1],t:fmt(now)};
+if(activeMember){x.uid=activeMember.uid;x.at=now.toISOString();x.createdAt=firebase.firestore.FieldValue.serverTimestamp()}
+att[id]=x;
+try{if(db){await db.runTransaction(async tx=>{const ref=db.collection("asist").doc(id),existing=await tx.get(ref);if(!existing.exists)tx.set(ref,x);else{delete att[id];setAuthStatus("La asistencia de este rol ya fue registrada hoy.")}})}
+else if(!SV("mk3a",att))throw new Error("El almacenamiento local no pudo guardar la asistencia.")}
+catch(e){delete att[id];console.error("No se pudo registrar la asistencia.",e);setAuthStatus("No se pudo registrar la asistencia. Comprueba la conexión y los permisos.",true);alert("No se pudo registrar la asistencia. Verifica el acceso y vuelve a intentarlo.")}}
+if(!activeMember)SV("mkwho",n);render()}
+function stopSharedListeners(){unsubscribers.forEach(unsubscribe=>unsubscribe());unsubscribers=[]}
+function watchSharedData(){stopSharedListeners();mode="compartido";attReady=false;
+unsubscribers.push(db.collection("marks").onSnapshot(snapshot=>{st={};snapshot.forEach(doc=>st[doc.id]=doc.data());render()},error=>{mode="error";console.error("Falló la sincronización de checks.",error);setAuthStatus("Se perdió la conexión de los checks. Recarga la página para reconectar.",true);render()}));
+unsubscribers.push(db.collection("asist").onSnapshot(snapshot=>{att={};snapshot.forEach(doc=>att[doc.id]=doc.data());attReady=true;render()},error=>{mode="error";console.error("Falló la sincronización de asistencias.",error);setAuthStatus("No se pudo cargar la asistencia compartida. Comprueba las reglas de Firestore.",true);render()}));
+setAuthStatus(`Conectado en tiempo real como ${activeMember.name} · ${activeMember.displayRole}.`);render()}
+async function onAuthChanged(firebaseUser){stopSharedListeners();
+if(!firebaseUser){activeMember=null;who="";st={};att={};attReady=true;mode="sin-sesion";render();openAtt();return}
+mode="autenticando";setAuthStatus("Validando tu perfil de equipo…");render();
+try{const snapshot=await db.collection("members").doc(firebaseUser.uid).get();if(auth.currentUser?.uid!==firebaseUser.uid)return;if(!snapshot.exists||snapshot.data().active!==true){setAuthStatus("Esta cuenta no está habilitada como integrante. Pide al administrador que registre su UID en members.",true);await auth.signOut();return}
+const member=snapshot.data(),teamPerson=WHO.find(person=>person[0]===member.name&&person[1]===member.displayRole),teamRole=ROLES.find(role=>role[0]===member.role&&role[1]===member.displayRole);
+if(!teamPerson||!teamRole)throw new Error("El perfil members debe tener name, displayRole y role válidos.");
+activeMember={...member,uid:firebaseUser.uid};who=member.name;prompted=true;$("mda").hidden=true;watchSharedData()}
+catch(error){mode="error";activeMember=null;who="";console.error("No se pudo validar o sincronizar el perfil.",error);setAuthStatus(`No se pudo iniciar la sesión compartida: ${error.message}`,true);render();openAtt()}}
+function useLocalStorage(){mode="local";activeMember=null;db=null;auth=null;st=L("mk3m");att=L("mk3a");attReady=true;render();maybePrompt()}
+function startFirebase(){const config=window.FIREBASE_CONFIG;
+if(!config||!config.apiKey||!config.authDomain||!config.projectId||!config.appId){useLocalStorage();return}
+if(typeof firebase==="undefined"){mode="error";render();openAtt();setAuthStatus("No se cargó Firebase. Comprueba la conexión y los scripts del HTML.",true);return}
+try{if(!firebase.apps.length)firebase.initializeApp(config);auth=firebase.auth();db=firebase.firestore();auth.onAuthStateChanged(onAuthChanged,error=>{mode="error";console.error("Falló la autenticación Firebase.",error);render();openAtt();setAuthStatus(`Error de autenticación: ${error.message}`,true)})}
+catch(error){mode="error";console.error("No se pudo inicializar Firebase.",error);render();openAtt();setAuthStatus(`No se pudo conectar con Firebase: ${error.message}`,true)}}
 document.addEventListener("click",e=>{const t=e.target,b=t.closest("button[data-k]");
-if(b){const k=b.dataset.k,v=+b.dataset.v,x=st[k];if(x&&(x.v==1||x.v===v))return;saveMark(k,v);return}
-const w=t.closest("button[data-w]");if(w)return saveAtt(w.dataset.w);if(t.id=="chg"){e.preventDefault();return openAtt()}if(t.id=="atb"||t.id=="mak")return openAtt();
+if(b){const k=b.dataset.k,v=+b.dataset.v,x=st[k];if(x&&x.v===v)removeMark(k);else saveMark(k,v);return}
+const tk=t.closest("input[data-tk]");if(tk){tk.checked?saveMark(tk.dataset.tk,1):removeMark(tk.dataset.tk);return}
+const w=t.closest("button[data-w]");if(w)return saveAtt(w.dataset.w);if(t.id=="chg"){e.preventDefault();if(auth){auth.signOut().catch(error=>{console.error("No se pudo cerrar la sesión.",error);setAuthStatus(`No se pudo cerrar sesión: ${error.message}`,true)})}else openAtt();return}
+if(t.id=="atb"||t.id=="mak")return activeMember?saveAtt():openAtt();
 const d=t.closest(".cd");if(d){sel=d.dataset.d;calHtml()}});
 $("calb").onclick=()=>{sel=today();cm=Number(sel.slice(5,7))-1;cy=Number(sel.slice(0,4));$("mdc").hidden=false;calHtml()};
 $("cx").onclick=()=>$("mdc").hidden=true;$("cp").onclick=()=>{cm--;if(cm<0){cm=11;cy--}calHtml()};$("cn").onclick=()=>{cm++;if(cm>11){cm=0;cy++}calHtml()};
 $("man").onclick=()=>$("mda").hidden=true;
-$("q").oninput=rfHtml;$("fp").onclick=e=>{onlyP=!onlyP;e.target.textContent=onlyP?"Ver todos":"Ver solo pendientes";rfHtml()};
+$("loginForm").addEventListener("submit",async event=>{event.preventDefault();if(!auth)return setAuthStatus("Firebase no está configurado todavía. Revisa el README.",true);
+const button=$("loginButton");button.disabled=true;setAuthStatus("Iniciando sesión…");
+try{await auth.signInWithEmailAndPassword($("loginEmail").value.trim(),$("loginPassword").value)}
+catch(error){console.error("Falló el inicio de sesión.",error);setAuthStatus(`No se pudo iniciar sesión: ${error.message}`,true)}
+finally{button.disabled=false}});
+$("logoutButton").onclick=async()=>{try{await auth.signOut()}catch(error){console.error("No se pudo cerrar la sesión.",error);setAuthStatus(`No se pudo cerrar sesión: ${error.message}`,true)}};
+$("tmy").onclick=e=>{onlyMe=!onlyMe;e.target.textContent=onlyMe?"Mostrar todos los roles":"Mostrar solo mi rol";teamHtml()};$("q").oninput=rfHtml;$("fp").onclick=e=>{onlyP=!onlyP;e.target.textContent=onlyP?"Ver todos":"Ver solo pendientes";rfHtml()};
 $("th").onclick=()=>{const r=document.documentElement;r.dataset.theme=getComputedStyle(r).getPropertyValue("--bg").trim()=="#0d1324"?"light":"dark"};
 $("lg").innerHTML=ROLES.map(r=>`<span><i style="background:var(--${r[0]})"></i>${r[1]}</span>`).join("");
 
 $("dl").value=L("mk3d").u||"";$("dl").onchange=()=>SV("mk3d",{u:$("dl").value});
 $("dgo").onclick=()=>{const u=$("dl").value.trim();if(/^https?:\/\//.test(u))window.open(u,"_blank","noopener")};
-render();setInterval(tick,1000);setInterval(render,60000);
-(async()=>{try{if(window.claude){user=await claude.use("user");db=await claude.use("db")}}catch(e){console.error("No se pudo conectar con el servicio compartido; se usará almacenamiento local.",e)}
-if(user){try{me=await user.me();if(me.id)names[me.id]=me.name}catch(e){console.error("No se pudo identificar al usuario conectado.",e)}}
-if(db){mode="compartido";const syncError=(message,e)=>{mode="error";console.error(message,e);render();alert(message)};
-db.collection("marks").onSnapshot(s=>{st={};s.docs.forEach(d=>st[d.id]=d.data());getNames();render()},e=>syncError("Se perdió la sincronización de las tareas compartidas. Recarga la página o verifica el servicio.",e));
-db.collection("asist").onSnapshot(s=>{att={};s.docs.forEach(d=>att[d.id]=d.data());attReady=true;getNames();render();maybePrompt()},e=>syncError("No se pudo cargar la asistencia compartida. Verifica el acceso al servicio y recarga la página.",e))}
-else{mode="local";st=L("mk3m");att=L("mk3a");attReady=true;render();maybePrompt()}})();
+render();setInterval(tick,1000);setInterval(render,60000);startFirebase();
