@@ -44,6 +44,7 @@ Firebase todavía debe configurarse en la consola antes de tener sincronización
 - Cada cuenta queda asociada a su nombre y rol por el documento `members` verificado al iniciar sesión.
 - Los checks de RF/RNF, Gantt, ceremonias, tareas y mejoras se pueden alternar: vuelve a pulsar el mismo control para quitarlo. El calendario registra quién cambió la marca y cuándo.
 - La asistencia se guarda una vez por día y rol en `asist/{AAAA-MM-DD}_u{índice}`. Incluye hora de Lima y marca ISO para mostrar las entradas del día en orden.
-- Sin configuración de Firebase, la página conserva un modo local en el navegador; ese modo no sincroniza y lo indica expresamente.
+- Sin configuración de Firebase, los datos se guardan en el almacenamiento local del navegador. Las pestañas abiertas del mismo sitio en el mismo navegador reciben las actualizaciones mediante el evento `storage`, pero otros navegadores, perfiles y dispositivos no comparten esos datos.
+- Para que cada integrante vea los checks de los demás desde su propio dispositivo se necesita un servicio compartido (por ejemplo, Firebase/Firestore) con autenticación y reglas configuradas. Una página estática de GitHub Pages, sin backend, no puede transmitir las escrituras a otros dispositivos.
 
 No publiques reglas abiertas a usuarios no autenticados. Las reglas de `firestore.rules` limitan la lectura a los miembros habilitados, validan la identidad/rol al escribir y prohíben alterar o eliminar asistencias registradas.
