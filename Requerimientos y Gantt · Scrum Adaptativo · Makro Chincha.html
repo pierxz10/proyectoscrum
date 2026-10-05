@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Requerimientos y Gantt · Scrum Adaptativo · Makro Chincha</title>
+<link rel="stylesheet" href="assets/css/styles.css"></head><body>
+<header><div class="w"><span class="tag">Metodologías Ágiles · Scrum Adaptativo</span>
+<h1>Sistema multiplataforma de control de objetos perdidos</h1>
+<p>Makro Supermayorista S.A. · Sede Chincha · UPSJB · Ciclo VIII · 2026-II</p></div></header>
+<nav><div class="w"><a href="#rf">Requerimientos funcionales</a><a href="#rnf">No funcionales</a><a href="#gantt">Diagrama de Gantt</a><a href="#cer">Ceremonias y evidencias</a><button id="calb" style="margin-left:auto">📅 Calendario</button></div></nav>
+<main><div class="w">
+<div class="wkb" id="wkb"></div>
+<div class="pn" id="pn"></div>
+<div class="stats" id="stats"></div>
+
+<section id="rf"><h2>Requerimientos funcionales (RF)</h2>
+<div class="tools"><input type="search" id="q" placeholder="Buscar RF por código o palabra…"><button id="fp">Ver solo pendientes</button><button id="th">🌓 Tema</button></div>
+<div class="gwrap"><table class="tb" id="rft"></table></div></section>
+
+<section id="rnf"><h2>Requerimientos no funcionales (RNF)</h2><div class="gwrap"><table class="tb" id="rnt"></table></div></section>
+
+<section id="gantt"><h2>Diagrama de Gantt · Semanas 1 a 15</h2>
+<div class="roles" id="roles"></div>
+
+<div class="gwrap"><table class="g" id="gt"></table></div>
+<div class="lg" id="lg"></div></section>
+
+<section id="cer"><h2>Ceremonias, reuniones y evidencias</h2>
+<div class="drive"><input id="dl" type="url" placeholder="Pega aquí el enlace de la carpeta de Drive con las evidencias (capturas)"><button id="dgo">Abrir carpeta</button></div>
+<div class="gwrap"><table class="cer" id="ct"></table></div></section>
+</div></main>
+<div class="md" id="mdc" hidden><div class="mb"><div class="mh"><button id="cp">◀</button><b id="cmt"></b><button id="cn">▶</button><button id="cx">✕</button></div><div class="cg" id="cgr"></div><div class="cdt" id="cdt"></div></div></div>
+<div class="md" id="mda" hidden><div class="mb"><h3>👋 Hola</h3><p>Elige tu nombre y rol para registrar una asistencia diaria con fecha y hora exactas.</p><div id="mwho"></div><div class="tools" style="margin-top:10px"><button id="man">Ahora no</button></div></div></div>
+<footer>Los checks son permanentes: ✓ marca un elemento como cumplido y ✗ como no cumplido. La asistencia se registra una vez al día por persona y rol. Para compartirla entre dispositivos se necesita una base de datos compartida; sin ella, los datos quedan en este navegador.</footer>
+
+<script src="assets/js/app.js" defer></script></body></html>
