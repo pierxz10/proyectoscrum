@@ -10,23 +10,16 @@
 
 ## Configuración de Firebase y sincronización
 
-Firebase todavía debe configurarse en la consola antes de tener sincronización entre dispositivos. Cuando esté configurado, los cambios de checks, tareas de rol y asistencia se propagan en tiempo real mediante los listeners de Firestore. La página muestra cuándo está conectada y no presenta los cambios locales como sincronizados.
+La aplicación ya está enlazada al proyecto Firebase `proyectoscrum-ffd53` y a su base Firestore Standard `(default)` en `northamerica-northeast1`. Con una sesión de equipo autorizada, Firestore comparte en tiempo real los checks, tareas por rol y asistencias entre todos los integrantes, independientemente de su rol.
 
-1. Crea un proyecto Firebase, registra una aplicación web y copia su objeto de configuración pública en `assets/js/firebase-config.js`, reemplazando `null`:
+1. En Firebase Authentication, habilita el proveedor **Correo/contraseña** y crea una cuenta para cada integrante. El inicio de sesión está habilitado en la página, pero no se permite el registro libre de cuentas.
+2. Publica las reglas seguras de Firestore desde la raíz del proyecto:
 
-   ```js
-   window.FIREBASE_CONFIG = {
-     apiKey: "TU_API_KEY_WEB",
-     authDomain: "TU_PROYECTO.firebaseapp.com",
-     projectId: "TU_PROJECT_ID",
-     appId: "TU_APP_ID"
-   };
+   ```sh
+   npx -y firebase-tools@latest deploy --only firestore:rules --project proyectoscrum-ffd53
    ```
 
-   La configuración del SDK web es pública; no incluyas contraseñas, claves de cuentas de servicio ni otros secretos en JavaScript.
-2. En Firebase Authentication, habilita **Correo/contraseña** y crea una cuenta para cada integrante. El inicio de sesión está habilitado en la página, pero no se permite el registro libre de cuentas.
-3. Crea la base de datos de Firestore y publica `firestore.rules` en la pestaña **Reglas**.
-4. Para cada cuenta del equipo, copia su UID de Authentication y crea `members/{UID}` desde la consola con estos campos:
+3. Para cada cuenta del equipo, copia su UID de Authentication y crea `members/{UID}` desde la consola de Firestore con estos campos:
 
    | Integrante | `name` | `displayRole` | `role` |
    |---|---|---|---|
@@ -36,14 +29,17 @@ Firebase todavía debe configurarse en la consola antes de tener sincronización
    | Dayron | `Dayron` | `Developer 2 · Back End` | `be` |
    | Patricia | `Patricia` | `Stakeholder · QA` | `qa` |
 
-   Agrega también `active` con valor booleano `true`. El inicio de sesión solo da acceso a una cuenta cuyo UID esté habilitado en `members`.
-5. En GitHub, activa **Settings → Pages → Source: GitHub Actions**. El workflow `.github/workflows/pages.yml` publicará el sitio al hacer push a `main`; la entrada es `index.html`. Agrega `pierxz10.github.io` en **Authentication → Settings → Authorized domains**. Mantén el archivo HTML, `assets/` y los scripts de Firebase juntos, con sus rutas relativas.
+   Agrega también `active` con valor booleano `true`. Solo las cuentas cuyo UID esté habilitado en `members` pueden iniciar sesión en el tablero.
+4. En GitHub, activa **Settings → Pages → Source: GitHub Actions**. El workflow `.github/workflows/pages.yml` publicará el sitio al hacer push a `main`; la entrada es `index.html`. Agrega `pierxz10.github.io` en **Authentication → Settings → Authorized domains**. Mantén el archivo HTML, `assets/` y los scripts de Firebase juntos, con sus rutas relativas.
+
+La configuración del SDK web en `assets/js/firebase-config.js` es pública y necesaria en el sitio estático. No agregues contraseñas, claves de cuentas de servicio ni otros secretos al repositorio.
 
 ## Uso y datos
 
 - Cada cuenta queda asociada a su nombre y rol por el documento `members` verificado al iniciar sesión.
 - Los checks de RF/RNF, Gantt, ceremonias, tareas y mejoras se pueden alternar: vuelve a pulsar el mismo control para quitarlo. El calendario registra quién cambió la marca y cuándo.
 - La asistencia se guarda una vez por día y rol en `asist/{AAAA-MM-DD}_u{índice}`. Incluye hora de Lima y marca ISO para mostrar las entradas del día en orden.
-- Sin configuración de Firebase, la página conserva un modo local en el navegador; ese modo no sincroniza y lo indica expresamente.
+- Cada sesión válida escucha las mismas colecciones de Firestore: todos los roles pueden ver los checks y tareas que marque cualquier integrante.
+- Si Firebase no carga, la página usa almacenamiento local del navegador; esos cambios locales no se comparten con otros navegadores, perfiles ni dispositivos. Comprueba el estado de conexión en el panel antes de marcar checks.
 
 No publiques reglas abiertas a usuarios no autenticados. Las reglas de `firestore.rules` limitan la lectura a los miembros habilitados, validan la identidad/rol al escribir y prohíben alterar o eliminar asistencias registradas.

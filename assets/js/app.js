@@ -105,7 +105,7 @@ const card=(t,[a,b,n])=>`<div class="st"><small>${t}</small><b>${a}/${n}</b> <sm
 const cer=[];for(let w=1;w<=14;w++)CC.forEach(c=>cer.push("c"+w+c[0]));
 $("stats").innerHTML=card("Funcionales",cnt(RF.map(r=>r.id)))+card("No funcionales",cnt(RNF.map(r=>r[0])))+card("Actividades Gantt",cnt(ACT.map((a,i)=>"g"+i)))+card("Ceremonias y evidencias",cnt(cer))+card("Tareas y mejoras por rol",cnt(Object.keys(TEAM).flatMap(r=>["t","m"].flatMap(p=>TEAM[r][p].map((_,i)=>p+"_"+r+"_"+i)))))}
 function banner(){const cw=curW(),m=myAtt();
-$("wkb").innerHTML=`<div><small>Hora exacta (Lima)</small><b id="ck"></b></div><div><small>Ingresaste a esta página</small><b>${fmtS(ENTRY)}</b></div><div><small>Semana del proyecto</small><b>${cw==0?"Inicia el 24 ago":cw>15?"Plazo concluido":`${cw} de 15`+(cw<=15?` · ${sd(wd(cw))} – ${sd(wd(cw)+6*DAY)}`:"")}</b></div><div><small>Entrega final · lunes 30 nov 2026</small><b id="cd"></b></div><div><small>Mi asistencia de hoy</small>${m?`<b class="good">✓ ${m.p} · ${m.t}</b><small>${m.r}</small>`:`<button class="pri" id="atb">☑ Marcar asistencia${who?` · ${who}`:""}</button>`}<small><a href="#" id="chg">${auth?"Cerrar sesión / cambiar integrante":who?"Cambiar persona":"Seleccionar persona"}</a></small></div><div><small>Datos</small><b>${mode=="compartido"?"🟢 En tiempo real":mode=="local"?"🟠 Solo en este navegador":mode=="error"?"🔴 Error de conexión":mode=="sin-sesion"?"🔐 Inicia sesión":"⏳ Conectando…"}</b></div>`;tick()}
+$("wkb").innerHTML=`<div><small>Hora exacta (Lima)</small><b id="ck"></b></div><div><small>Ingresaste a esta página</small><b>${fmtS(ENTRY)}</b></div><div><small>Semana del proyecto</small><b>${cw==0?"Inicia el 24 ago":cw>15?"Plazo concluido":`${cw} de 15`+(cw<=15?` · ${sd(wd(cw))} – ${sd(wd(cw)+6*DAY)}`:"")}</b></div><div><small>Entrega final · lunes 30 nov 2026</small><b id="cd"></b></div><div><small>Mi asistencia de hoy</small>${m?`<b class="good">✓ ${m.p} · ${m.t}</b><small>${m.r}</small>`:`<button class="pri" id="atb">☑ Marcar asistencia${who?` · ${who}`:""}</button>`}<small><a href="#" id="chg">${auth?"Cerrar sesión / cambiar integrante":who?"Cambiar persona":"Seleccionar persona"}</a></small></div><div><small>Datos</small><b>${mode=="compartido"?"🟢 En tiempo real":mode=="local"?"🟠 Pestañas de este navegador":mode=="error"?"🔴 Error de conexión":mode=="sin-sesion"?"🔐 Inicia sesión":"⏳ Conectando…"}</b></div>`;tick()}
 function tick(){const a=$("ck"),c=$("cd");if(a)a.textContent=fmtS(new Date());if(!c)return;const d=DEAD-limaNow().getTime();
 if(d>0){const D=Math.floor(d/DAY),H=Math.floor(d%DAY/36e5),M=Math.floor(d%36e5/6e4),S=Math.floor(d%6e4/1e3);c.textContent=`${D}d ${H}h ${M}m ${S}s`}else c.textContent=d>-DAY?"¡HOY es la entrega!":"Plazo concluido"}
 function panel(){const cw=curW(),c=Math.min(cw,15),s=spW(c);let sc="";
@@ -138,17 +138,17 @@ function render(){rfHtml();rnfHtml();ganttHtml();rolesHtml();cerHtml();teamHtml(
 function setAuthStatus(message,isError=false){const status=$("authStatus");status.textContent=message;status.classList.toggle("bad",isError);status.classList.toggle("good",!isError&&Boolean(message))}
 function maybePrompt(){if(prompted)return;prompted=true;if(mode==="local"&&!who)openAtt();else if(mode==="sin-sesion"||mode==="error")openAtt()}
 function openAtt(){const local=mode==="local";$("authTitle").textContent=local?"👋 Selecciona tu rol":"🔐 Acceso del equipo";
-$("authHelp").textContent=local?"Modo local: los cambios se guardan solamente en este navegador.":"Inicia sesión con la cuenta asignada por el administrador del equipo.";
+$("authHelp").textContent=local?"Modo local: los cambios se guardan y comparten entre pestañas de este navegador. No se comparten con otros dispositivos.":"Inicia sesión con la cuenta asignada por el administrador del equipo.";
 $("loginForm").hidden=local;$("logoutButton").hidden=local||!auth?.currentUser;$("mwho").innerHTML=local?WHO.map(w=>`<button class="pw" data-w="${w[0]}"><b>${w[0]}</b><small>${w[1]}</small></button>`).join(""):"";
-if(local)setAuthStatus("Sincronización en tiempo real no configurada. No compartas datos personales en este modo.",true);
+if(local)setAuthStatus("Sincronización local entre pestañas activada; para sincronizar distintos dispositivos se necesita un servicio compartido.",false);
 $("mda").hidden=false}
 async function saveMark(k,v){if(!who){openAtt();return}const previous=st[k],x={v,t:fmt(new Date()),by:who};
 if(activeMember){x.uid=activeMember.uid;x.role=activeMember.role;x.updatedAt=firebase.firestore.FieldValue.serverTimestamp()}
 st[k]=x;render();
-try{if(db){await db.collection("marks").doc(k).set(x)}else if(!SV("mk3m",st)){throw new Error("El almacenamiento local no pudo guardar el cambio.")}}
+try{if(db){await db.collection("marks").doc(k).set(x)}else{st={...L("mk3m"),[k]:x};if(!SV("mk3m",st))throw new Error("El almacenamiento local no pudo guardar el cambio.");render()}}
 catch(e){if(previous)st[k]=previous;else delete st[k];console.error("No se pudo guardar el check.",e);setAuthStatus("No se guardó el check. Comprueba la conexión y los permisos.",true);render()}}
 async function removeMark(k){if(!who)return openAtt();const previous=st[k];delete st[k];render();
-try{if(db)await db.collection("marks").doc(k).delete();else if(!SV("mk3m",st))throw new Error("El almacenamiento local no pudo guardar el cambio.")}
+try{if(db)await db.collection("marks").doc(k).delete();else{st=L("mk3m");delete st[k];if(!SV("mk3m",st))throw new Error("El almacenamiento local no pudo guardar el cambio.");render()}}
 catch(e){st[k]=previous;console.error("No se pudo quitar el check.",e);setAuthStatus("No se pudo quitar el check. Comprueba la conexión y los permisos.",true);render()}}
 function teamHtml(){const rid=(WHO.find(w=>w[0]==who)||[])[1],mine=ROLES.find(r=>r[1]==rid);
 const list=(r,pre,arr)=>arr.map((t,i)=>{const k=pre+"_"+r+"_"+i,x=st[k];return `<label class="tk ${x&&x.v?"d":""}"><input type="checkbox" data-tk="${k}" ${x&&x.v?"checked":""}><span>${t}<small>${x?"✓ "+x.t+by(x):""}</small></span></label>`}).join("");
@@ -160,7 +160,7 @@ return `<div class="tc ${mine&&mine[0]==r[0]?"me":""}" style="border-top-color:v
 <h4>Mejoras implementadas</h4>${list(r[0],"m",T.m)}<p><span class="pg">Cómo usar tu habilidad:</span> ${T.h}</p>
 <h4>Cómo priorizar tu trabajo</h4><ol>${T.pr.map(x=>`<li>${x}</li>`).join("")}</ol>
 <h4>Actividades del Gantt a su cargo</h4>${A.map(x=>`<div class="tk ${ok("g"+x[1])?"d":""}"><span>${x[0][0]}<small>Sem ${x[0][2]}–${x[0][3]} · ${ok("g"+x[1])?"✓ cumplida":"pendiente"}</small></span></div>`).join("")}</div>`}).join("")}
-async function saveAtt(n=who){const i=WHO.findIndex(x=>x[0]===n);if(i<0)return;who=n;$("mda").hidden=true;
+async function saveAtt(n=who){const i=WHO.findIndex(x=>x[0]===n);if(i<0)return;who=n;$("mda").hidden=true;if(!db)att=L("mk3a");
 if(!wid()||!att[wid()]){const now=new Date(),id=today()+"_u"+i,x={d:today(),p:n,r:WHO[i][1],t:fmt(now)};
 if(activeMember){x.uid=activeMember.uid;x.at=now.toISOString();x.createdAt=firebase.firestore.FieldValue.serverTimestamp()}
 att[id]=x;
@@ -182,6 +182,8 @@ if(!teamPerson||!teamRole)throw new Error("El perfil members debe tener name, di
 activeMember={...member,uid:firebaseUser.uid};who=member.name;prompted=true;$("mda").hidden=true;watchSharedData()}
 catch(error){mode="error";activeMember=null;who="";console.error("No se pudo validar o sincronizar el perfil.",error);setAuthStatus(`No se pudo iniciar la sesión compartida: ${error.message}`,true);render();openAtt()}}
 function useLocalStorage(){mode="local";activeMember=null;db=null;auth=null;st=L("mk3m");att=L("mk3a");attReady=true;render();maybePrompt()}
+window.addEventListener("storage",event=>{if(mode!=="local"||!["mk3m","mk3a"].includes(event.key))return;
+if(event.key==="mk3m")st=L("mk3m");else att=L("mk3a");render()});
 function startFirebase(){const config=window.FIREBASE_CONFIG;
 if(!config||!config.apiKey||!config.authDomain||!config.projectId||!config.appId){useLocalStorage();return}
 if(typeof firebase==="undefined"){mode="error";render();openAtt();setAuthStatus("No se cargó Firebase. Comprueba la conexión y los scripts del HTML.",true);return}
