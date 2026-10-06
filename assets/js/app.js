@@ -74,7 +74,7 @@ const ph=w=>(spW(w)||["—"])[0];
 const CC=[["m","Reunión Zoom/Meet"],["d","Daily / seguimiento"],["e","Captura en Drive"],["r","Review + Retro"]];
 const ATR=["Portabilidad","Usabilidad","Seguridad","Integridad","Escalabilidad","Mantenibilidad","Adaptabilidad","Fiabilidad"];
 const spIdx=i=>i<5?0:i<14?1:i<22?2:3,dueRF=i=>[5,8,11,14][spIdx(i)],dueRNF=i=>[0,1,6].includes(i)?5:14;
-let st={},att={},db=null,auth=null,activeMember=null,unsubscribers=[],mode="cargando",sel=today(),cm=Number(today().slice(5,7))-1,cy=Number(today().slice(0,4)),onlyP=false,prompted=false,attReady=false,onlyMe=false;
+let st={},att={},db=null,auth=null,activeMember=null,unsubscribers=[],mode="cargando",sel=today(),cm=Number(today().slice(5,7))-1,cy=Number(today().slice(0,4)),onlyP=false,prompted=false,attReady=false,onlyMe=false,anonymousSignInPending=false;
 const ENTRY=new Date(),L=k=>{try{return JSON.parse(localStorage.getItem(k))||{}}catch(e){console.error(`No se pudo leer ${k} del almacenamiento local.`,e);return {}}},SV=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){console.error(`No se pudo guardar ${k} en el almacenamiento local.`,e);return false}};
 const by=x=>x&&x.by?" · "+x.by:"";
 const ok=k=>st[k]&&st[k].v==1,WHO=[["Piero","Scrum Master"],["María","Product Owner"],["Airton","Developer 1 · Front End"],["Dayron","Developer 2 · Back End"],["Patricia","Stakeholder · QA"]],wid=()=>{const i=WHO.findIndex(x=>x[0]==who);return i<0?null:today()+"_u"+i},myAtt=()=>wid()?att[wid()]:null;let who="";try{who=localStorage.getItem("mkwho")||""}catch(e){console.error("No se pudo leer el perfil local.",e)}
@@ -105,7 +105,7 @@ const card=(t,[a,b,n])=>`<div class="st"><small>${t}</small><b>${a}/${n}</b> <sm
 const cer=[];for(let w=1;w<=14;w++)CC.forEach(c=>cer.push("c"+w+c[0]));
 $("stats").innerHTML=card("Funcionales",cnt(RF.map(r=>r.id)))+card("No funcionales",cnt(RNF.map(r=>r[0])))+card("Actividades Gantt",cnt(ACT.map((a,i)=>"g"+i)))+card("Ceremonias y evidencias",cnt(cer))+card("Tareas y mejoras por rol",cnt(Object.keys(TEAM).flatMap(r=>["t","m"].flatMap(p=>TEAM[r][p].map((_,i)=>p+"_"+r+"_"+i)))))}
 function banner(){const cw=curW(),m=myAtt();
-$("wkb").innerHTML=`<div><small>Hora exacta (Lima)</small><b id="ck"></b></div><div><small>Ingresaste a esta página</small><b>${fmtS(ENTRY)}</b></div><div><small>Semana del proyecto</small><b>${cw==0?"Inicia el 24 ago":cw>15?"Plazo concluido":`${cw} de 15`+(cw<=15?` · ${sd(wd(cw))} – ${sd(wd(cw)+6*DAY)}`:"")}</b></div><div><small>Entrega final · lunes 30 nov 2026</small><b id="cd"></b></div><div><small>Mi asistencia de hoy</small>${m?`<b class="good">✓ ${m.p} · ${m.t}</b><small>${m.r}</small>`:`<button class="pri" id="atb">☑ Marcar asistencia${who?` · ${who}`:""}</button>`}<small><a href="#" id="chg">${auth?"Cerrar sesión / cambiar integrante":who?"Cambiar persona":"Seleccionar persona"}</a></small></div><div><small>Datos</small><b>${mode=="compartido"?"🟢 En tiempo real":mode=="local"?"🟠 Pestañas de este navegador":mode=="error"?"🔴 Error de conexión":mode=="sin-sesion"?"🔐 Inicia sesión":"⏳ Conectando…"}</b></div>`;tick()}
+$("wkb").innerHTML=`<div><small>Hora exacta (Lima)</small><b id="ck"></b></div><div><small>Ingresaste a esta página</small><b>${fmtS(ENTRY)}</b></div><div><small>Semana del proyecto</small><b>${cw==0?"Inicia el 24 ago":cw>15?"Plazo concluido":`${cw} de 15`+(cw<=15?` · ${sd(wd(cw))} – ${sd(wd(cw)+6*DAY)}`:"")}</b></div><div><small>Entrega final · lunes 30 nov 2026</small><b id="cd"></b></div><div><small>Mi asistencia de hoy</small>${m?`<b class="good">✓ ${m.p} · ${m.t}</b><small>${m.r}</small>`:`<button class="pri" id="atb">☑ Marcar asistencia${who?` · ${who}`:""}</button>`}<small><a href="#" id="chg">${auth?"Cerrar sesión / cambiar integrante":who?"Cambiar persona":"Seleccionar persona"}</a></small></div><div><small>Datos</small><b>${mode=="compartido"?"🟢 En tiempo real":mode=="local"?"🟠 Pestañas de este navegador":mode=="error"?"🔴 Error de conexión":mode=="sin-sesion"?"🔄 Preparando sesión anónima":mode=="sin-rol"?"👋 Elige tu rol":"⏳ Conectando…"}</b></div>`;tick()}
 function tick(){const a=$("ck"),c=$("cd");if(a)a.textContent=fmtS(new Date());if(!c)return;const d=DEAD-limaNow().getTime();
 if(d>0){const D=Math.floor(d/DAY),H=Math.floor(d%DAY/36e5),M=Math.floor(d%36e5/6e4),S=Math.floor(d%6e4/1e3);c.textContent=`${D}d ${H}h ${M}m ${S}s`}else c.textContent=d>-DAY?"¡HOY es la entrega!":"Plazo concluido"}
 function panel(){const cw=curW(),c=Math.min(cw,15),s=spW(c);let sc="";
@@ -137,10 +137,11 @@ $("cdt").innerHTML=`<b>${new Date(t).toLocaleDateString("es-PE",{weekday:"long",
 function render(){rfHtml();rnfHtml();ganttHtml();rolesHtml();cerHtml();teamHtml();stats();banner();panel();if(!$("mdc").hidden)calHtml()}
 function setAuthStatus(message,isError=false){const status=$("authStatus");status.textContent=message;status.classList.toggle("bad",isError);status.classList.toggle("good",!isError&&Boolean(message))}
 function maybePrompt(){if(prompted)return;prompted=true;if(mode==="local"&&!who)openAtt();else if(mode==="sin-sesion"||mode==="error")openAtt()}
-function openAtt(){const local=mode==="local";$("authTitle").textContent=local?"👋 Selecciona tu rol":"🔐 Acceso del equipo";
-$("authHelp").textContent=local?"Modo local: los cambios se guardan y comparten entre pestañas de este navegador. No se comparten con otros dispositivos.":"Inicia sesión con la cuenta asignada por el administrador del equipo.";
-$("loginForm").hidden=local;$("logoutButton").hidden=local||!auth?.currentUser;$("mwho").innerHTML=local?WHO.map(w=>`<button class="pw" data-w="${w[0]}"><b>${w[0]}</b><small>${w[1]}</small></button>`).join(""):"";
+function openAtt(){const local=mode==="local",registration=mode==="sin-rol";$("authTitle").textContent=local?"👋 Selecciona tu rol":registration?"👋 Registra tu rol":"🔐 Acceso del equipo";
+$("authHelp").textContent=local?"Modo local: los cambios se guardan y comparten entre pestañas de este navegador. No se comparten con otros dispositivos.":registration?"Elige tu nombre y rol. El registro no verifica tu identidad: cualquier persona puede elegir cualquier rol.":"Preparando una sesión anónima de Firebase…";
+$("logoutButton").hidden=local||!activeMember;$("mwho").innerHTML=local?WHO.map(w=>`<button class="pw" data-w="${w[0]}"><b>${w[0]}</b><small>${w[1]}</small></button>`).join(""):registration?WHO.map(w=>`<button class="pw" data-enroll="${w[0]}"><b>${w[0]}</b><small>${w[1]}</small></button>`).join(""):"";
 if(local)setAuthStatus("Sincronización local entre pestañas activada; para sincronizar distintos dispositivos se necesita un servicio compartido.",false);
+else if(registration)setAuthStatus("Registro abierto: no se solicitan credenciales y los roles no se verifican.",false);
 $("mda").hidden=false}
 async function saveMark(k,v){if(!who){openAtt();return}const previous=st[k],x={v,t:fmt(new Date()),by:who};
 if(activeMember){x.uid=activeMember.uid;x.role=activeMember.role;x.updatedAt=firebase.firestore.FieldValue.serverTimestamp()}
@@ -173,10 +174,26 @@ function watchSharedData(){stopSharedListeners();mode="compartido";attReady=fals
 unsubscribers.push(db.collection("marks").onSnapshot(snapshot=>{st={};snapshot.forEach(doc=>st[doc.id]=doc.data());render()},error=>{mode="error";console.error("Falló la sincronización de checks.",error);setAuthStatus("Se perdió la conexión de los checks. Recarga la página para reconectar.",true);render()}));
 unsubscribers.push(db.collection("asist").onSnapshot(snapshot=>{att={};snapshot.forEach(doc=>att[doc.id]=doc.data());attReady=true;render()},error=>{mode="error";console.error("Falló la sincronización de asistencias.",error);setAuthStatus("No se pudo cargar la asistencia compartida. Comprueba las reglas de Firestore.",true);render()}));
 setAuthStatus(`Conectado en tiempo real como ${activeMember.name} · ${activeMember.displayRole}.`);render()}
+async function registerMember(name){const person=WHO.find(entry=>entry[0]===name),role=person&&ROLES.find(entry=>entry[1]===person[1]),firebaseUser=auth?.currentUser;
+if(mode!=="sin-rol"||!person||!role||!firebaseUser?.isAnonymous)return;
+const buttons=$("mwho").querySelectorAll("button");buttons.forEach(button=>button.disabled=true);setAuthStatus("Registrando el rol…");
+const member={name:person[0],displayRole:person[1],role:role[0],active:true};
+try{await db.runTransaction(async transaction=>{const ref=db.collection("members").doc(firebaseUser.uid),snapshot=await transaction.get(ref);if(snapshot.exists)throw new Error("Esta sesión ya tiene un perfil registrado.");transaction.set(ref,member)});
+if(auth.currentUser?.uid!==firebaseUser.uid)return;
+activeMember={...member,uid:firebaseUser.uid};who=member.name;prompted=true;$("mda").hidden=true;watchSharedData()}
+catch(error){console.error("No se pudo registrar el rol.",error);setAuthStatus(`No se pudo registrar el rol: ${error.message}`,true)}
+finally{buttons.forEach(button=>button.disabled=false)}}
 async function onAuthChanged(firebaseUser){stopSharedListeners();
-if(!firebaseUser){activeMember=null;who="";st={};att={};attReady=true;mode="sin-sesion";render();openAtt();return}
-mode="autenticando";setAuthStatus("Validando tu perfil de equipo…");render();
-try{const snapshot=await db.collection("members").doc(firebaseUser.uid).get();if(auth.currentUser?.uid!==firebaseUser.uid)return;if(!snapshot.exists||snapshot.data().active!==true){setAuthStatus("Esta cuenta no está habilitada como integrante. Pide al administrador que registre su UID en members.",true);await auth.signOut();return}
+if(!firebaseUser){activeMember=null;who="";st={};att={};attReady=true;mode="sin-sesion";render();openAtt();
+if(anonymousSignInPending)return;
+anonymousSignInPending=true;
+try{await auth.signInAnonymously()}
+catch(error){anonymousSignInPending=false;mode="error";console.error("No se pudo iniciar una sesión anónima de Firebase.",error);render();openAtt();setAuthStatus(`No se pudo iniciar la sesión anónima. Habilita el proveedor Anónimo en Firebase Authentication: ${error.message}`,true)}
+return}
+anonymousSignInPending=false;who="";mode="autenticando";setAuthStatus("Validando tu perfil de equipo…");render();
+try{const snapshot=await db.collection("members").doc(firebaseUser.uid).get();if(auth.currentUser?.uid!==firebaseUser.uid)return;
+if(!snapshot.exists){activeMember=null;mode="sin-rol";render();openAtt();return}
+if(snapshot.data().active!==true){activeMember=null;mode="deshabilitado";render();openAtt();setAuthStatus("Este perfil está deshabilitado. Contacta al administrador del equipo.",true);return}
 const member=snapshot.data(),teamPerson=WHO.find(person=>person[0]===member.name&&person[1]===member.displayRole),teamRole=ROLES.find(role=>role[0]===member.role&&role[1]===member.displayRole);
 if(!teamPerson||!teamRole)throw new Error("El perfil members debe tener name, displayRole y role válidos.");
 activeMember={...member,uid:firebaseUser.uid};who=member.name;prompted=true;$("mda").hidden=true;watchSharedData()}
@@ -192,17 +209,13 @@ catch(error){mode="error";console.error("No se pudo inicializar Firebase.",error
 document.addEventListener("click",e=>{const t=e.target,b=t.closest("button[data-k]");
 if(b){const k=b.dataset.k,v=+b.dataset.v,x=st[k];if(x&&x.v===v)removeMark(k);else saveMark(k,v);return}
 const tk=t.closest("input[data-tk]");if(tk){tk.checked?saveMark(tk.dataset.tk,1):removeMark(tk.dataset.tk);return}
+const enroll=t.closest("button[data-enroll]");if(enroll)return registerMember(enroll.dataset.enroll);
 const w=t.closest("button[data-w]");if(w)return saveAtt(w.dataset.w);if(t.id=="chg"){e.preventDefault();if(auth){auth.signOut().catch(error=>{console.error("No se pudo cerrar la sesión.",error);setAuthStatus(`No se pudo cerrar sesión: ${error.message}`,true)})}else openAtt();return}
 if(t.id=="atb"||t.id=="mak")return activeMember?saveAtt():openAtt();
 const d=t.closest(".cd");if(d){sel=d.dataset.d;calHtml()}});
 $("calb").onclick=()=>{sel=today();cm=Number(sel.slice(5,7))-1;cy=Number(sel.slice(0,4));$("mdc").hidden=false;calHtml()};
 $("cx").onclick=()=>$("mdc").hidden=true;$("cp").onclick=()=>{cm--;if(cm<0){cm=11;cy--}calHtml()};$("cn").onclick=()=>{cm++;if(cm>11){cm=0;cy++}calHtml()};
 $("man").onclick=()=>$("mda").hidden=true;
-$("loginForm").addEventListener("submit",async event=>{event.preventDefault();if(!auth)return setAuthStatus("Firebase no está configurado todavía. Revisa el README.",true);
-const button=$("loginButton");button.disabled=true;setAuthStatus("Iniciando sesión…");
-try{await auth.signInWithEmailAndPassword($("loginEmail").value.trim(),$("loginPassword").value)}
-catch(error){console.error("Falló el inicio de sesión.",error);setAuthStatus(`No se pudo iniciar sesión: ${error.message}`,true)}
-finally{button.disabled=false}});
 $("logoutButton").onclick=async()=>{try{await auth.signOut()}catch(error){console.error("No se pudo cerrar la sesión.",error);setAuthStatus(`No se pudo cerrar sesión: ${error.message}`,true)}};
 $("tmy").onclick=e=>{onlyMe=!onlyMe;e.target.textContent=onlyMe?"Mostrar todos los roles":"Mostrar solo mi rol";teamHtml()};$("q").oninput=rfHtml;$("fp").onclick=e=>{onlyP=!onlyP;e.target.textContent=onlyP?"Ver todos":"Ver solo pendientes";rfHtml()};
 $("th").onclick=()=>{const r=document.documentElement;r.dataset.theme=getComputedStyle(r).getPropertyValue("--bg").trim()=="#0d1324"?"light":"dark"};

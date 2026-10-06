@@ -1,15 +1,50 @@
 rules_version = '2';
 
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+// members/{uid}: name, displayRole, role, active. No PII is stored.
+//   Public-to-team display fields; role is immutable after registration.
+// marks/{markId}: v (0/1), t, by, role, uid, updatedAt (timestamp).
+// asist/{YYYY-MM-DD_u0..u4}: d, p, r, t, at, uid, createdAt (timestamp).
+// ===============================================================
+
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    function isAnonymous() {
+      return isAuthenticated()
+        && request.auth.token.firebase.sign_in_provider == 'anonymous';
+    }
+
     function isActiveMember() {
-      return request.auth != null
+      return isAuthenticated()
         && exists(/databases/$(database)/documents/members/$(request.auth.uid))
         && get(/databases/$(database)/documents/members/$(request.auth.uid)).data.active == true;
     }
 
     function member() {
       return get(/databases/$(database)/documents/members/$(request.auth.uid)).data;
+    }
+
+    function isValidMember(data) {
+      return data.keys().hasAll(['name', 'displayRole', 'role', 'active'])
+        && data.keys().hasOnly(['name', 'displayRole', 'role', 'active'])
+        && data.active == true
+        && (
+          (data.name == 'Piero' && data.displayRole == 'Scrum Master' && data.role == 'sm')
+          || (data.name == 'María' && data.displayRole == 'Product Owner' && data.role == 'po')
+          || (data.name == 'Airton' && data.displayRole == 'Developer 1 · Front End' && data.role == 'fe')
+          || (data.name == 'Dayron' && data.displayRole == 'Developer 2 · Back End' && data.role == 'be')
+          || (data.name == 'Patricia' && data.displayRole == 'Stakeholder · QA' && data.role == 'qa')
+        );
     }
 
     function roleMatchesIndex(attendanceId) {
@@ -21,11 +56,15 @@ service cloud.firestore {
     }
 
     function validMark() {
-      return request.resource.data.keys().hasOnly([
+      return request.resource.data.keys().hasAll([
+          'v', 't', 'by', 'role', 'uid', 'updatedAt'
+        ])
+        && request.resource.data.keys().hasOnly([
           'v', 't', 'by', 'role', 'uid', 'updatedAt'
         ])
         && request.resource.data.v in [0, 1]
         && request.resource.data.t is string
+        && request.resource.data.t.size() <= 40
         && request.resource.data.by == member().name
         && request.resource.data.role == member().role
         && request.resource.data.uid == request.auth.uid
@@ -33,7 +72,10 @@ service cloud.firestore {
     }
 
     function validAttendance(attendanceId) {
-      return request.resource.data.keys().hasOnly([
+      return request.resource.data.keys().hasAll([
+          'd', 'p', 'r', 't', 'at', 'uid', 'createdAt'
+        ])
+        && request.resource.data.keys().hasOnly([
           'd', 'p', 'r', 't', 'at', 'uid', 'createdAt'
         ])
         && request.resource.data.d is string
@@ -45,13 +87,17 @@ service cloud.firestore {
         && request.resource.data.r == member().displayRole
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.t is string
+        && request.resource.data.t.size() <= 40
         && request.resource.data.at is string
+        && request.resource.data.at.size() <= 40
         && request.resource.data.createdAt == request.time;
     }
 
     match /members/{uid} {
-      allow read: if isActiveMember() && request.auth.uid == uid;
-      allow write: if false;
+      allow get: if isOwner(uid);
+      allow list: if false;
+      allow create: if isAnonymous() && isOwner(uid) && isValidMember(request.resource.data);
+      allow update, delete: if false;
     }
 
     match /marks/{markId} {
