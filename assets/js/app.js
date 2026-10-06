@@ -188,7 +188,7 @@ if(!firebaseUser){activeMember=null;who="";st={};att={};attReady=true;mode="sin-
 if(anonymousSignInPending)return;
 anonymousSignInPending=true;
 try{await auth.signInAnonymously()}
-catch(error){anonymousSignInPending=false;mode="error";console.error("No se pudo iniciar una sesión anónima de Firebase.",error);render();openAtt();setAuthStatus(`No se pudo iniciar la sesión anónima. Habilita el proveedor Anónimo en Firebase Authentication: ${error.message}`,true)}
+catch(error){anonymousSignInPending=false;console.error("No se pudo iniciar una sesión anónima de Firebase.",error);useLocalStorage("Firebase no habilitó la sesión anónima. Puedes ingresar por rol, pero los datos solo se guardarán en este navegador y no se sincronizarán entre dispositivos.",true)}
 return}
 anonymousSignInPending=false;who="";mode="autenticando";setAuthStatus("Validando tu perfil de equipo…");render();
 try{const snapshot=await db.collection("members").doc(firebaseUser.uid).get();if(auth.currentUser?.uid!==firebaseUser.uid)return;
@@ -198,7 +198,7 @@ const member=snapshot.data(),teamPerson=WHO.find(person=>person[0]===member.name
 if(!teamPerson||!teamRole)throw new Error("El perfil members debe tener name, displayRole y role válidos.");
 activeMember={...member,uid:firebaseUser.uid};who=member.name;prompted=true;$("mda").hidden=true;watchSharedData()}
 catch(error){mode="error";activeMember=null;who="";console.error("No se pudo validar o sincronizar el perfil.",error);setAuthStatus(`No se pudo iniciar la sesión compartida: ${error.message}`,true);render();openAtt()}}
-function useLocalStorage(){mode="local";activeMember=null;db=null;auth=null;st=L("mk3m");att=L("mk3a");attReady=true;render();maybePrompt()}
+function useLocalStorage(message="Modo local: los cambios se guardan y comparten entre pestañas de este navegador, pero no entre dispositivos.",isError=false){mode="local";activeMember=null;db=null;auth=null;st=L("mk3m");att=L("mk3a");attReady=true;render();maybePrompt();if(message){openAtt();setAuthStatus(message,isError)}}
 window.addEventListener("storage",event=>{if(mode!=="local"||!["mk3m","mk3a"].includes(event.key))return;
 if(event.key==="mk3m")st=L("mk3m");else att=L("mk3a");render()});
 function startFirebase(){const config=window.FIREBASE_CONFIG;
