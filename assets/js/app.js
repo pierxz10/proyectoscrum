@@ -137,8 +137,9 @@ $("cdt").innerHTML=`<b>${new Date(t).toLocaleDateString("es-PE",{weekday:"long",
 function render(){rfHtml();rnfHtml();ganttHtml();rolesHtml();cerHtml();teamHtml();stats();banner();panel();if(!$("mdc").hidden)calHtml()}
 function setAuthStatus(message,isError=false){const status=$("authStatus");status.textContent=message;status.classList.toggle("bad",isError);status.classList.toggle("good",!isError&&Boolean(message))}
 function maybePrompt(){if(prompted)return;prompted=true;if(mode==="local"&&!who)openAtt();else if(mode==="sin-sesion"||mode==="error")openAtt()}
-function openAtt(){const local=mode==="local",registration=mode==="sin-rol";$("authTitle").textContent=local?"👋 Selecciona tu rol":registration?"👋 Registra tu rol":"🔐 Acceso del equipo";
-$("authHelp").textContent=local?"Modo local: los cambios se guardan y comparten entre pestañas de este navegador. No se comparten con otros dispositivos.":registration?"Elige tu nombre y rol. El registro no verifica tu identidad: cualquier persona puede elegir cualquier rol.":"Preparando una sesión anónima de Firebase…";
+function openAtt(){const local=mode==="local",registration=mode==="sin-rol";
+$("authHelp").textContent=local?"Modo local: los cambios se guardan y comparten entre pestañas de este navegador. No se comparten con otros dispositivos.":registration?"Elige tu nombre y rol. El registro no verifica tu identidad: cualquier persona puede elegir cualquier rol.":mode==="error"?"La sincronización requiere una sesión anónima y acceso a Firestore. Revisa el estado indicado antes de intentar ingresar.":"Preparando una sesión anónima de Firebase…";
+$("authTitle").textContent=local?"👋 Selecciona tu rol":registration?"👋 Registra tu rol":mode==="error"?"⚠️ Sin conexión compartida":"🔐 Acceso del equipo";
 $("logoutButton").hidden=local||!activeMember;$("mwho").innerHTML=local?WHO.map(w=>`<button class="pw" data-w="${w[0]}"><b>${w[0]}</b><small>${w[1]}</small></button>`).join(""):registration?WHO.map(w=>`<button class="pw" data-enroll="${w[0]}"><b>${w[0]}</b><small>${w[1]}</small></button>`).join(""):"";
 if(local)setAuthStatus("Sincronización local entre pestañas activada; para sincronizar distintos dispositivos se necesita un servicio compartido.",false);
 else if(registration)setAuthStatus("Registro abierto: no se solicitan credenciales y los roles no se verifican.",false);
@@ -181,14 +182,14 @@ const member={name:person[0],displayRole:person[1],role:role[0],active:true};
 try{await db.runTransaction(async transaction=>{const ref=db.collection("members").doc(firebaseUser.uid),snapshot=await transaction.get(ref);if(snapshot.exists)throw new Error("Esta sesión ya tiene un perfil registrado.");transaction.set(ref,member)});
 if(auth.currentUser?.uid!==firebaseUser.uid)return;
 activeMember={...member,uid:firebaseUser.uid};who=member.name;prompted=true;$("mda").hidden=true;watchSharedData()}
-catch(error){console.error("No se pudo registrar el rol.",error);setAuthStatus(`No se pudo registrar el rol: ${error.message}`,true)}
+catch(error){console.error("No se pudo registrar el rol.",error);setAuthStatus(error.code==="permission-denied"?"Firestore rechazó el registro. Publica las reglas actualizadas de firestore.rules en el proyecto Firebase.":`No se pudo registrar el rol: ${error.message}`,true)}
 finally{buttons.forEach(button=>button.disabled=false)}}
 async function onAuthChanged(firebaseUser){stopSharedListeners();
 if(!firebaseUser){activeMember=null;who="";st={};att={};attReady=true;mode="sin-sesion";render();openAtt();
 if(anonymousSignInPending)return;
 anonymousSignInPending=true;
 try{await auth.signInAnonymously()}
-catch(error){anonymousSignInPending=false;console.error("No se pudo iniciar una sesión anónima de Firebase.",error);useLocalStorage("Firebase no habilitó la sesión anónima. Puedes ingresar por rol, pero los datos solo se guardarán en este navegador y no se sincronizarán entre dispositivos.",true)}
+catch(error){anonymousSignInPending=false;activeMember=null;mode="error";console.error("No se pudo iniciar una sesión anónima de Firebase.",error);render();openAtt();setAuthStatus(`No se pudo iniciar la sesión anónima. Habilita el proveedor Anónimo en Firebase Authentication: ${error.message}`,true)}
 return}
 anonymousSignInPending=false;who="";mode="autenticando";setAuthStatus("Validando tu perfil de equipo…");render();
 try{const snapshot=await db.collection("members").doc(firebaseUser.uid).get();if(auth.currentUser?.uid!==firebaseUser.uid)return;
@@ -197,14 +198,14 @@ if(snapshot.data().active!==true){activeMember=null;mode="deshabilitado";render(
 const member=snapshot.data(),teamPerson=WHO.find(person=>person[0]===member.name&&person[1]===member.displayRole),teamRole=ROLES.find(role=>role[0]===member.role&&role[1]===member.displayRole);
 if(!teamPerson||!teamRole)throw new Error("El perfil members debe tener name, displayRole y role válidos.");
 activeMember={...member,uid:firebaseUser.uid};who=member.name;prompted=true;$("mda").hidden=true;watchSharedData()}
-catch(error){mode="error";activeMember=null;who="";console.error("No se pudo validar o sincronizar el perfil.",error);setAuthStatus(`No se pudo iniciar la sesión compartida: ${error.message}`,true);render();openAtt()}}
+catch(error){mode="error";activeMember=null;who="";console.error("No se pudo validar o sincronizar el perfil.",error);setAuthStatus(error.code==="permission-denied"?"Firestore rechazó el acceso. Publica las reglas actualizadas de firestore.rules en el proyecto Firebase.":`No se pudo iniciar la sesión compartida: ${error.message}`,true);render();openAtt()}}
 function useLocalStorage(message="Modo local: los cambios se guardan y comparten entre pestañas de este navegador, pero no entre dispositivos.",isError=false){mode="local";activeMember=null;db=null;auth=null;st=L("mk3m");att=L("mk3a");attReady=true;render();maybePrompt();if(message){openAtt();setAuthStatus(message,isError)}}
 window.addEventListener("storage",event=>{if(mode!=="local"||!["mk3m","mk3a"].includes(event.key))return;
 if(event.key==="mk3m")st=L("mk3m");else att=L("mk3a");render()});
 function startFirebase(){const config=window.FIREBASE_CONFIG;
 if(!config||!config.apiKey||!config.authDomain||!config.projectId||!config.appId){useLocalStorage();return}
 if(typeof firebase==="undefined"){mode="error";render();openAtt();setAuthStatus("No se cargó Firebase. Comprueba la conexión y los scripts del HTML.",true);return}
-try{if(!firebase.apps.length)firebase.initializeApp(config);auth=firebase.auth();db=firebase.firestore();auth.onAuthStateChanged(onAuthChanged,error=>{mode="error";console.error("Falló la autenticación Firebase.",error);render();openAtt();setAuthStatus(`Error de autenticación: ${error.message}`,true)})}
+try{if(!firebase.apps.length)firebase.initializeApp(config);auth=firebase.auth();db=firebase.firestore();auth.onAuthStateChanged(onAuthChanged,error=>{mode="error";activeMember=null;console.error("Falló la autenticación Firebase.",error);render();openAtt();setAuthStatus(`Error de autenticación y sincronización: ${error.message}`,true)})}
 catch(error){mode="error";console.error("No se pudo inicializar Firebase.",error);render();openAtt();setAuthStatus(`No se pudo conectar con Firebase: ${error.message}`,true)}}
 document.addEventListener("click",e=>{const t=e.target,b=t.closest("button[data-k]");
 if(b){const k=b.dataset.k,v=+b.dataset.v,x=st[k];if(x&&x.v===v)removeMark(k);else saveMark(k,v);return}
