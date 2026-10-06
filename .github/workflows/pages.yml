@@ -20,15 +20,29 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Configure Pages
         uses: actions/configure-pages@v5
+      - name: Prepare static site
+        run: |
+          mkdir -p _site/assets
+          cp index.html _site/
+          cp "Requerimientos y Gantt · Scrum Adaptativo · Makro Chincha.html" _site/
+          cp -R assets/. _site/assets/
+          test -s _site/index.html
+          test -s "_site/Requerimientos y Gantt · Scrum Adaptativo · Makro Chincha.html"
+          test -s _site/assets/css/styles.css
+          test -s _site/assets/js/app.js
+          test -s _site/assets/js/firebase-config.js
       - name: Upload static site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
       - name: Deploy to Pages
         id: deployment
         uses: actions/deploy-pages@v4
