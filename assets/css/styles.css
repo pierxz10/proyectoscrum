@@ -54,6 +54,7 @@ footer{text-align:center;color:var(--mu);font-size:12.5px;padding:0 14px 30px}
 .chip{padding:2px 8px;border-radius:12px;font-size:11.5px;font-weight:700;background:var(--bd);white-space:nowrap}
 .chip.ok{background:var(--ok);color:#fff}.chip.no{background:var(--qa);color:#fff}.chip.wip{background:var(--acc);color:#14213d}
 .wkb{background:var(--card);border:1px solid var(--bd);border-left:5px solid var(--acc);border-radius:10px;padding:12px 14px;margin-bottom:16px}
+.cloud-state{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:9px 12px;margin:-6px 0 16px;font-size:13px}.cloud-state.error{color:var(--qa);border-color:var(--qa)}.cloud-state.connected{color:var(--ok);border-color:var(--ok)}
 .g{min-width:1150px}.g th.l{text-align:left;padding-left:10px}.g td.n small{display:block}.cer tr.cur td{background:color-mix(in srgb,var(--acc) 20%,transparent)}
 .role small{display:block;margin-top:4px;color:var(--mu)}
 

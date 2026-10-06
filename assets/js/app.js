@@ -74,10 +74,10 @@ const ph=w=>(spW(w)||["—"])[0];
 const CC=[["m","Reunión Zoom/Meet"],["d","Daily / seguimiento"],["e","Captura en Drive"],["r","Review + Retro"]];
 const ATR=["Portabilidad","Usabilidad","Seguridad","Integridad","Escalabilidad","Mantenibilidad","Adaptabilidad","Fiabilidad"];
 const spIdx=i=>i<5?0:i<14?1:i<22?2:3,dueRF=i=>[5,8,11,14][spIdx(i)],dueRNF=i=>[0,1,6].includes(i)?5:14;
-let st={},att={},mode="local",sel=today(),cm=Number(today().slice(5,7))-1,cy=Number(today().slice(0,4)),onlyP=false,prompted=false,attReady=true,onlyMe=false;
+let st={},att={},mode="sin-sesion",sel=today(),cm=Number(today().slice(5,7))-1,cy=Number(today().slice(0,4)),onlyP=false,prompted=false,onlyMe=false;
 const ENTRY=new Date(),L=k=>{try{return JSON.parse(localStorage.getItem(k))||{}}catch(e){console.error(`No se pudo leer ${k} del almacenamiento local.`,e);return {}}},SV=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){console.error(`No se pudo guardar ${k} en el almacenamiento local.`,e);return false}};
 const by=x=>x&&x.by?" · "+x.by:"";
-const ok=k=>st[k]&&st[k].v==1,WHO=[["Piero","Scrum Master"],["María","Product Owner"],["Airton","Developer 1 · Front End"],["Dayron","Developer 2 · Back End"],["Patricia","Stakeholder · QA"]],ACCESS_PINS={Piero:"48216",María:"73105",Airton:"29047",Dayron:"86423",Patricia:"51698"},wid=()=>{const i=WHO.findIndex(x=>x[0]==who);return i<0?null:today()+"_u"+i},myAtt=()=>wid()?att[wid()]:null;let who="";
+const ok=k=>st[k]&&st[k].v==1,WHO=[["Piero","Scrum Master"],["María","Product Owner"],["Airton","Developer 1 · Front End"],["Dayron","Developer 2 · Back End"],["Patricia","Stakeholder · QA"]],ROLE_CODES=["sm","po","fe","be","qa"],ACCESS_PINS={Piero:"48216",María:"73105",Airton:"29047",Dayron:"86423",Patricia:"51698"},wid=()=>{const i=WHO.findIndex(x=>x[0]==who);return i<0?null:today()+"_u"+i},myAtt=()=>wid()?att[wid()]:null;let who="",auth=null,db=null,currentUid="",cloudReady=false,marksUnsub=null,attendanceUnsub=null;
 const sg=k=>{const x=st[k],v=x?x.v:-1;return `<span class="sg"><button class="y ${v==1?"on":""}" data-k="${k}" data-v="1" title="${v==1?"Clic para quitar":"Cumplido"}">✓</button><button class="x ${v==0?"on":""}" data-k="${k}" data-v="0" title="${v==0?"Clic para quitar":"No cumplido"}">✗</button></span>`};
 const eventDate=x=>{const timestamp=x&&(x.createdAt||x.updatedAt);if(timestamp&&typeof timestamp.toDate==="function")return timestamp.toDate();if(x&&x.at){const date=new Date(x.at);if(!Number.isNaN(date.getTime()))return date}return null};
 const recordTime=x=>{const date=eventDate(x);return date?fmtS(date):x&&x.t?x.t:"Pendiente"};
@@ -135,21 +135,21 @@ $("cgr").innerHTML=h;
 const t=Date.parse(`${sel}T12:00:00Z`),w=weekOf(t),s=spW(w),L2=(B[sel]||[]).slice().sort((a,b)=>(eventDate(a)?.getTime()||0)-(eventDate(b)?.getTime()||0));
 $("cdt").innerHTML=`<b>${new Date(t).toLocaleDateString("es-PE",{weekday:"long",day:"numeric",month:"long",year:"numeric",timeZone:"UTC"})}</b><br>${w>=1&&w<=15?`Semana ${w} · ${s[0]}`:"Fuera del cronograma"}${sel=="2026-11-30"?" · 🏁 ENTREGA FINAL":""}<p><b>Asistencia del día (${L2.length}):</b></p>${L2.length?"<ul class=\"attendance-list\">"+L2.map(a=>`<li><b>${a.p}</b> · ${a.r} · ${a.d} · <time datetime="${eventDate(a)?.toISOString()||""}">${recordTime(a)}</time></li>`).join("")+"</ul>":"<p>Nadie registró asistencia.</p>"}${sel==td&&!myAtt()?'<button class="pri" id="mak">☑ Marcar mi asistencia de hoy</button>':""}`}
 function render(){rfHtml();rnfHtml();ganttHtml();rolesHtml();cerHtml();teamHtml();stats();banner();panel();if(!$("mdc").hidden)calHtml()}
+function setCloudStatus(message,isError=false){const status=$("cloudState");status.textContent=message;status.classList.toggle("error",isError);status.classList.toggle("connected",!isError&&mode==="cloud")}
 function setAuthStatus(message,isError=false){const status=$("authStatus");status.textContent=message;status.classList.toggle("bad",isError);status.classList.toggle("good",!isError&&Boolean(message))}
-function maybePrompt(){if(prompted)return;prompted=true;if(mode==="local"&&!who)openAtt();else if(mode==="sin-sesion"||mode==="error")openAtt()}
+function maybePrompt(){if(prompted)return;prompted=true;if(mode!=="cloud")openAtt()}
 function openAtt(){
 $("authTitle").textContent="🔐 Ingreso al tablero";
-$("authHelp").textContent="Ingresa con tu nombre y PIN. Los PIN son demostrativos: no verifican identidad ni protegen los datos.";
+$("authHelp").textContent="Elige tu nombre para leer y guardar los checks compartidos en la nube.";
 $("loginForm").hidden=false;$("loginUser").value="";$("loginPin").value="";
-setAuthStatus("Los cambios se guardan solo en este navegador y se comparten entre sus pestañas.",false);
+setAuthStatus("El PIN es demostrativo y no confirma que seas la persona seleccionada.",false);
 $("mda").hidden=false}
-async function saveMark(k,v){if(!who){openAtt();return}const previous=st[k],x={v,t:fmt(new Date()),by:who};
-st[k]=x;render();
-try{st={...L("mk3m"),[k]:x};if(!SV("mk3m",st))throw new Error("El almacenamiento local no pudo guardar el cambio.");render()}
-catch(e){if(previous)st[k]=previous;else delete st[k];console.error("No se pudo guardar el check.",e);setAuthStatus("No se guardó el check en este navegador.",true);render()}}
-async function removeMark(k){if(!who)return openAtt();const previous=st[k];delete st[k];render();
-try{st=L("mk3m");delete st[k];if(!SV("mk3m",st))throw new Error("El almacenamiento local no pudo guardar el cambio.");render()}
-catch(e){st[k]=previous;console.error("No se pudo quitar el check.",e);setAuthStatus("No se pudo quitar el check del almacenamiento local.",true);render()}}
+async function saveMark(k,v){if(!who){openAtt();return}if(!cloudReady||!currentUid){setCloudStatus("La nube todavía no está lista. El check no se guardó; vuelve a intentarlo cuando aparezca Conectado.",true);return}
+try{const i=WHO.findIndex(entry=>entry[0]===who);await db.collection("marks").doc(k).set({v,t:fmt(new Date()),by:who,role:ROLE_CODES[i],uid:currentUid,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})}
+catch(e){console.error("No se pudo guardar el check en Firestore.",e);setCloudStatus(`No se guardó el check en la nube: ${e.message}`,true)}}
+async function removeMark(k){if(!who){openAtt();return}if(!cloudReady){setCloudStatus("La nube todavía no está lista. El check no se quitó; vuelve a intentarlo cuando aparezca Conectado.",true);return}
+try{await db.collection("marks").doc(k).delete()}
+catch(e){console.error("No se pudo quitar el check de Firestore.",e);setCloudStatus(`No se pudo quitar el check de la nube: ${e.message}`,true)}}
 function teamHtml(){const rid=(WHO.find(w=>w[0]==who)||[])[1],mine=ROLES.find(r=>r[1]==rid);
 const list=(r,pre,arr)=>arr.map((t,i)=>{const k=pre+"_"+r+"_"+i,x=st[k];return `<label class="tk ${x&&x.v?"d":""}"><input type="checkbox" data-tk="${k}" ${x&&x.v?"checked":""}><span>${t}<small>${x?"✓ "+x.t+by(x):""}</small></span></label>`}).join("");
 $("tm").innerHTML=ROLES.filter(r=>!onlyMe||!mine||r[0]==mine[0]).map(r=>{const T=TEAM[r[0]],n=T.t.length+T.m.length,d=T.t.filter((_,i)=>ok("t_"+r[0]+"_"+i)).length+T.m.filter((_,i)=>ok("m_"+r[0]+"_"+i)).length;
@@ -160,18 +160,39 @@ return `<div class="tc ${mine&&mine[0]==r[0]?"me":""}" style="border-top-color:v
 <h4>Mejoras implementadas</h4>${list(r[0],"m",T.m)}<p><span class="pg">Cómo usar tu habilidad:</span> ${T.h}</p>
 <h4>Cómo priorizar tu trabajo</h4><ol>${T.pr.map(x=>`<li>${x}</li>`).join("")}</ol>
 <h4>Actividades del Gantt a su cargo</h4>${A.map(x=>`<div class="tk ${ok("g"+x[1])?"d":""}"><span>${x[0][0]}<small>Sem ${x[0][2]}–${x[0][3]} · ${ok("g"+x[1])?"✓ cumplida":"pendiente"}</small></span></div>`).join("")}</div>`}).join("")}
-async function saveAtt(n=who){const i=WHO.findIndex(x=>x[0]===n);if(i<0)return;who=n;$("mda").hidden=true;att=L("mk3a");
-if(!wid()||!att[wid()]){const now=new Date(),id=today()+"_u"+i,x={d:today(),p:n,r:WHO[i][1],t:fmt(now)};att[id]=x;
-try{if(!SV("mk3a",att))throw new Error("El almacenamiento local no pudo guardar la asistencia.")}
-catch(e){delete att[id];console.error("No se pudo registrar la asistencia.",e);setAuthStatus("No se pudo registrar la asistencia en este navegador.",true);alert("No se pudo registrar la asistencia en este navegador.")}}
-SV("mkwho",n);render()}
-function enterLocalRole(name){mode="local";who=name;SV("mkwho",name);st=L("mk3m");att=L("mk3a");attReady=true;$("mda").hidden=true;render()}
-function loginWithRole(event){event.preventDefault();const name=$("loginUser").value,pin=$("loginPin").value,person=WHO.find(entry=>entry[0]===name);
-if(!person||!/^[0-9]{5}$/.test(pin)||ACCESS_PINS[name]!==pin){setAuthStatus("Nombre o PIN incorrecto.",true);return}
-enterLocalRole(name);$("loginPin").value="";setAuthStatus("Ingreso correcto. Los cambios quedan guardados en este navegador.",false)}
-window.addEventListener("storage",event=>{if(mode!=="local"||!["mk3m","mk3a"].includes(event.key))return;
-if(event.key==="mk3m")st=L("mk3m");else att=L("mk3a");render()});
-function startLocalMode(){st=L("mk3m");att=L("mk3a");render();maybePrompt()}
+async function saveAtt(n=who){const i=WHO.findIndex(x=>x[0]===n);if(i<0)return;if(!cloudReady||!currentUid){setCloudStatus("La nube todavía no está lista. La asistencia no se guardó; vuelve a intentarlo cuando aparezca Conectado.",true);return}
+const id=today()+"_u"+i;if(att[id]){setCloudStatus("La asistencia de este rol ya está registrada hoy.");return}
+try{await db.collection("asist").doc(id).set({d:today(),p:n,r:WHO[i][1],t:fmt(new Date()),at:fmt(new Date()),uid:currentUid,createdAt:firebase.firestore.FieldValue.serverTimestamp()})}
+catch(e){console.error("No se pudo registrar la asistencia en Firestore.",e);setCloudStatus(`No se registró la asistencia en la nube: ${e.message}`,true)}}
+function stopCloudSubscriptions(){if(marksUnsub)marksUnsub();if(attendanceUnsub)attendanceUnsub();marksUnsub=null;attendanceUnsub=null}
+function subscribeCloudData(){stopCloudSubscriptions();cloudReady=false;let marksReady=false,attendanceReady=false;
+const ready=()=>{if(!marksReady||!attendanceReady)return;cloudReady=true;setCloudStatus(`Conectado a Firestore · ${who} · cambios sincronizados en tiempo real.`)};
+marksUnsub=db.collection("marks").onSnapshot(snapshot=>{st={};snapshot.forEach(doc=>{st[doc.id]=doc.data()});marksReady=true;render();ready()},error=>{cloudReady=false;console.error("Falló la suscripción a los checks de Firestore.",error);setCloudStatus(`No se pudieron leer los checks en la nube: ${error.message}`,true)});
+attendanceUnsub=db.collection("asist").onSnapshot(snapshot=>{att={};snapshot.forEach(doc=>{att[doc.id]=doc.data()});attendanceReady=true;render();ready()},error=>{cloudReady=false;console.error("Falló la suscripción a las asistencias de Firestore.",error);setCloudStatus(`No se pudieron leer las asistencias en la nube: ${error.message}`,true)})}
+function activateCloudRole(name,user){const person=WHO.find(entry=>entry[0]===name);if(!person)throw new Error("El integrante seleccionado no existe.");
+who=name;currentUid=user.uid;mode="cloud";$("mda").hidden=true;setCloudStatus(`Conectado · cargando los datos compartidos para ${name}…`);subscribeCloudData();render()}
+async function connectCloudRole(name){const person=WHO.find(entry=>entry[0]===name);if(!person)throw new Error("Selecciona un integrante válido.");
+let user=auth.currentUser;
+if(user){const currentMember=await db.collection("members").doc(user.uid).get();if(currentMember.exists&&currentMember.data().name!==name){await auth.signOut();user=null}}
+if(!user)user=(await auth.signInAnonymously()).user;
+const memberRef=db.collection("members").doc(user.uid),memberSnapshot=await memberRef.get(),role=ROLE_CODES[WHO.findIndex(entry=>entry[0]===name)];
+if(memberSnapshot.exists){const member=memberSnapshot.data();if(member.active!==true||member.name!==name||member.role!==role)throw new Error("Esta sesión de navegador ya está vinculada a otro integrante. Cambia de persona e inténtalo de nuevo.")}
+else await memberRef.set({name,displayRole:person[1],role,active:true});
+activateCloudRole(name,user)}
+function loginWithRole(event){event.preventDefault();const name=$("loginUser").value,pin=$("loginPin").value;
+if(!WHO.some(entry=>entry[0]===name)||!/^[0-9]{5}$/.test(pin)||ACCESS_PINS[name]!==pin){setAuthStatus("Nombre o PIN incorrecto.",true);return}
+if(!auth){setAuthStatus("Firebase Authentication no está disponible. Revisa la conexión y la configuración.",true);return}
+setAuthStatus("Conectando con la nube…");$("loginButton").disabled=true;
+connectCloudRole(name).then(()=>{$("loginPin").value="";setAuthStatus("Conectado. Los checks se compartirán en tiempo real.")})
+.catch(error=>{console.error("No se pudo iniciar sesión en Firestore.",error);setAuthStatus(`No se pudo conectar: ${error.message}`,true)})
+.finally(()=>{$("loginButton").disabled=false})}
+function handleAuthState(user){if(!user){stopCloudSubscriptions();who="";currentUid="";cloudReady=false;st={};att={};mode="sin-sesion";setCloudStatus("Sin sesión en la nube. Conéctate para ver y guardar los checks del equipo.",true);render();maybePrompt();return}
+currentUid=user.uid;db.collection("members").doc(user.uid).get().then(snapshot=>{if(!snapshot.exists){mode="sin-sesion";setCloudStatus("Elige tu integrante para abrir los datos compartidos.");render();maybePrompt();return}
+const member=snapshot.data();if(member.active!==true||!WHO.some((person,i)=>person[0]===member.name&&person[1]===member.displayRole&&ROLE_CODES[i]===member.role))throw new Error("El perfil guardado en la nube no coincide con los integrantes habilitados.");
+activateCloudRole(member.name,user)}).catch(error=>{mode="error";cloudReady=false;setCloudStatus(`No se pudo validar el perfil en Firestore: ${error.message}`,true);console.error("No se pudo validar el perfil de Firestore.",error);render();maybePrompt()})}
+function startCloudMode(){render();if(!window.firebase||!window.FIREBASE_CONFIG){mode="error";setCloudStatus("No está disponible el SDK o la configuración de Firebase. No se guardarán cambios.",true);maybePrompt();return}
+try{if(!firebase.apps.length)firebase.initializeApp(window.FIREBASE_CONFIG);auth=firebase.auth();db=firebase.firestore();auth.onAuthStateChanged(handleAuthState,error=>{mode="error";cloudReady=false;setCloudStatus(`Error de autenticación de Firebase: ${error.message}`,true);console.error("Falló Firebase Authentication.",error);maybePrompt()})}
+catch(error){mode="error";setCloudStatus(`No se pudo inicializar Firebase: ${error.message}`,true);console.error("No se pudo inicializar Firebase.",error);maybePrompt()}}
 document.addEventListener("click",e=>{const t=e.target,b=t.closest("button[data-k]");
 if(b){const k=b.dataset.k,v=+b.dataset.v,x=st[k];if(x&&x.v===v)removeMark(k);else saveMark(k,v);return}
 const tk=t.closest("input[data-tk]");if(tk){tk.checked?saveMark(tk.dataset.tk,1):removeMark(tk.dataset.tk);return}
@@ -187,4 +208,4 @@ $("lg").innerHTML=ROLES.map(r=>`<span><i style="background:var(--${r[0]})"></i>$
 
 $("dl").value=L("mk3d").u||"";$("dl").onchange=()=>SV("mk3d",{u:$("dl").value});
 $("dgo").onclick=()=>{const u=$("dl").value.trim();if(/^https?:\/\//.test(u))window.open(u,"_blank","noopener")};
-render();setInterval(tick,1000);setInterval(render,60000);startLocalMode();
+render();setInterval(tick,1000);setInterval(render,60000);startCloudMode();
